@@ -1,0 +1,1 @@
+{ "crons": [{ "path": "/api/cron/payout", "schedule": "5 0 * * 1" }] }
