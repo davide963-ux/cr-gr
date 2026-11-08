@@ -1,13 +1,15 @@
 "use client";
-import { useRef, useState } from "react";
-import bs58 from "bs58";
+import { useEffect, useRef, useState } from "react";
 
 type Round = { target: string; tiles: string[] };
 type Click = { round: number; tile: number; t: number };
 const DURATION = 30_000;
 
 export default function Play() {
-  const [wallet, setWallet] = useState<string | null>(null);
+  const [handle, setHandle] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [mode, setMode] = useState<"signup" | "login">("signup");
+  const [sent, setSent] = useState(false);
   const [rounds, setRounds] = useState<Round[]>([]);
   const [i, setI] = useState(0);
   const [score, setScore] = useState(0);
@@ -16,15 +18,12 @@ export default function Play() {
   const [x, setX] = useState("");
   const game = useRef<{ id: string; t0: number; clicks: Click[]; timer?: any } | undefined>(undefined);
 
-  async function connect() {
-    const phantom = (window as any).solana;
-    if (!phantom?.isPhantom) return setMsg("Install Phantom wallet");
-    const { publicKey } = await phantom.connect();
-    const wallet = publicKey.toString();
-    const { message } = await (await fetch("/api/auth/nonce", { method: "POST", body: JSON.stringify({ wallet }) })).json();
-    const { signature } = await phantom.signMessage(new TextEncoder().encode(message), "utf8");
-    const r = await fetch("/api/auth/verify", { method: "POST", body: JSON.stringify({ wallet, signature: bs58.encode(signature), xUsername: x }) });
-    if (r.ok) setWallet(wallet); else setMsg((await r.json()).error ?? "Sign-in failed");
+  useEffect(() => { fetch("/api/auth/me").then((r) => r.json()).then((d) => setHandle(d.x_username)); }, []);
+
+  async function submitAuth() {
+    const r = await fetch(`/api/auth/${mode}`, { method: "POST", body: JSON.stringify({ email, xUsername: x }) });
+    const d = await r.json();
+    if (r.ok) { setSent(true); setMsg(""); } else setMsg(d.error);
   }
 
   async function start() {
@@ -60,12 +59,15 @@ export default function Play() {
   return (
     <>
       <h1>HashRush</h1>
-      {!wallet ? (<>
-        <p>Your X username (we contact winners there):</p>
-        <input value={x} onChange={(e) => setX(e.target.value)} placeholder="@yourhandle" style={{ padding: 8, marginRight: 8 }} />
-        <button onClick={connect}>Connect Phantom</button>
-      </>) : <p>{wallet.slice(0, 4)}…{wallet.slice(-4)}</p>}
-      {wallet && !rounds.length && <button onClick={start}>Start (30s)</button>}
+      {!handle ? (sent ? <p>📧 Check your inbox and click the link to confirm your email (valid 30 min).</p> : (<>
+        <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email" type="email" style={{ padding: 8, marginRight: 8 }} />
+        {mode === "signup" && <input value={x} onChange={(e) => setX(e.target.value)} placeholder="X username, e.g. @yourhandle" style={{ padding: 8, marginRight: 8 }} />}
+        <button onClick={submitAuth}>{mode === "signup" ? "Sign up" : "Email me a login link"}</button>
+        <p><a href="#" onClick={(e) => { e.preventDefault(); setMode(mode === "signup" ? "login" : "signup"); setMsg(""); }} style={{ color: "#58a6ff" }}>
+          {mode === "signup" ? "Already registered? Log in" : "New here? Sign up"}</a></p>
+        {mode === "signup" && <p style={{ fontSize: 12, opacity: 0.7 }}>We contact winners on X to send the prize. You don&apos;t need to connect your X account.</p>}
+      </>)) : <p>@{handle}</p>}
+      {handle && !rounds.length && <button onClick={start}>Start (30s)</button>}
       {r && (<>
         <p>Time {(left / 1000).toFixed(1)}s · Score {score}</p>
         <h2>Find the hash starting with <code style={{ color: "#f0883e" }}>{r.target}</code></h2>

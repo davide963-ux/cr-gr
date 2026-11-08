@@ -14,7 +14,7 @@ export default async function Home() {
       <p>Payout: <b>{next.toUTCString()}</b></p>
       <Link href="/play" style={{ color: "#58a6ff" }}>▶ Play HashRush</Link>
       <h2>This week&apos;s top 10</h2>
-      <ol>{rows.map((r) => <li key={r.wallet}>@{r.x_username} — {String(r.points)} pts ({String(r.wins)} wins)</li>)}</ol>
+      <ol>{rows.map((r) => <li key={String(r.player_id)}>@{r.x_username} — {String(r.points)} pts ({String(r.wins)} wins)</li>)}</ol>
       {!rows.length && <p>No scores yet. Be first.</p>}
     </>
   );

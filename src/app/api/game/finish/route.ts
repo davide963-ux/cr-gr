@@ -1,14 +1,14 @@
 import { sql } from "@/lib/db";
-import { getWallet } from "@/lib/auth";
+import { getPlayerId } from "@/lib/auth";
 import { scoreSession } from "@/lib/game";
 
 export async function POST(req: Request) {
-  const wallet = await getWallet();
-  if (!wallet) return Response.json({ error: "sign in first" }, { status: 401 });
+  const playerId = await getPlayerId();
+  if (!playerId) return Response.json({ error: "sign in first" }, { status: 401 });
   const { id, clicks } = await req.json();
 
   const rows = await sql`select seed, extract(epoch from (now() - started_at)) * 1000 as elapsed
-                         from game_sessions where id = ${id} and wallet = ${wallet} and finished_at is null`;
+                         from game_sessions where id = ${id} and player_id = ${playerId} and finished_at is null`;
   if (!rows.length) return Response.json({ error: "unknown or already finished" }, { status: 404 });
 
   const v = scoreSession(rows[0].seed, clicks, Number(rows[0].elapsed));
