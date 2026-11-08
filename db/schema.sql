@@ -3,7 +3,7 @@
 
 create table players (
   wallet      text primary key,               -- Solana public key (base58)
-  username    text,
+  x_username  text not null check (x_username ~ '^[A-Za-z0-9_]{1,15}$'),  -- X handle without '@', used to contact winners
   created_at  timestamptz not null default now()
 );
 
@@ -44,13 +44,13 @@ create table weekly_payouts (
 
 -- Weekly leaderboard: one query, used by the API and by the payout job.
 create or replace function weekly_leaderboard(p_week date, p_limit int default 100)
-returns table (rank bigint, wallet text, username text, points bigint, wins bigint)
+returns table (rank bigint, wallet text, x_username text, points bigint, wins bigint)
 language sql stable as $$
   select row_number() over (order by sum(g.points) desc, max(g.finished_at) asc) as rank,
-         g.wallet, p.username, sum(g.points)::bigint, count(*) filter (where g.won)::bigint
+         g.wallet, p.x_username, sum(g.points)::bigint, count(*) filter (where g.won)::bigint
   from game_sessions g join players p using (wallet)
   where g.week_start = p_week and g.finished_at is not null
-  group by g.wallet, p.username
+  group by g.wallet, p.x_username
   having sum(g.points) > 0
   order by 1
   limit p_limit;

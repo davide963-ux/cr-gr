@@ -9,12 +9,12 @@ const week = process.argv.find((a) => /^\d{4}-\d{2}-\d{2}$/.test(a)) ?? previous
 const pool = Number(process.env.WEEKLY_PRIZE_POOL ?? 0);
 
 const top = await sql`select * from weekly_leaderboard(${week}::date, 10)`;
-const plan = top.map((r) => ({ rank: Number(r.rank), wallet: r.wallet as string, points: Number(r.points),
+const plan = top.map((r) => ({ rank: Number(r.rank), x: "@" + r.x_username, wallet: r.wallet as string, points: Number(r.points),
   wins: Number(r.wins), amount: (pool * SPLIT[Number(r.rank) - 1]) / 100 }));
 
 console.log(`Week starting ${week} — pool ${pool} $HASHRUSH`);
 console.table(plan);
-console.log("rank,wallet,amount\n" + plan.map((p) => `${p.rank},${p.wallet},${p.amount}`).join("\n"));
+console.log("rank,x,wallet,amount\n" + plan.map((p) => `${p.rank},${p.x},${p.wallet},${p.amount}`).join("\n"));
 
 if (process.argv.includes("--record")) {
   for (const p of plan)

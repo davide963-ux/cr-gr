@@ -23,11 +23,14 @@ sequenceDiagram
   A->>D: upsert nonce (5 min TTL)
   A-->>B: message "Sign in…Nonce: x"
   B->>B: phantom.signMessage(message)
-  B->>A: POST /api/auth/verify {wallet, signature}
-  A->>D: DELETE nonce RETURNING (single use)
+  B->>A: POST /api/auth/verify {wallet, signature, xUsername}
   A->>A: nacl.verify(signature, wallet pubkey)
+  A->>D: new player? require valid X handle, insert
+  A->>D: DELETE nonce RETURNING (single use)
   A-->>B: httpOnly JWT cookie (7d)
 ```
+
+**X username:** required at first sign-in (`@name`, `x.com/name` or `name`; 1-15 letters/digits/underscore), stored in `players.x_username`, shown on the leaderboard and printed by `npm run winners` so you can DM winners. Handles are *not* verified: before paying, confirm via DM that the person controls both the X account and the wallet (otherwise someone can type another person's handle).
 
 ## One game (server-authoritative anti-cheat)
 ```mermaid

@@ -13,6 +13,7 @@ export default function Play() {
   const [score, setScore] = useState(0);
   const [left, setLeft] = useState(0);
   const [msg, setMsg] = useState("");
+  const [x, setX] = useState("");
   const game = useRef<{ id: string; t0: number; clicks: Click[]; timer?: any } | undefined>(undefined);
 
   async function connect() {
@@ -22,8 +23,8 @@ export default function Play() {
     const wallet = publicKey.toString();
     const { message } = await (await fetch("/api/auth/nonce", { method: "POST", body: JSON.stringify({ wallet }) })).json();
     const { signature } = await phantom.signMessage(new TextEncoder().encode(message), "utf8");
-    const r = await fetch("/api/auth/verify", { method: "POST", body: JSON.stringify({ wallet, signature: bs58.encode(signature) }) });
-    if (r.ok) setWallet(wallet); else setMsg("Sign-in failed");
+    const r = await fetch("/api/auth/verify", { method: "POST", body: JSON.stringify({ wallet, signature: bs58.encode(signature), xUsername: x }) });
+    if (r.ok) setWallet(wallet); else setMsg((await r.json()).error ?? "Sign-in failed");
   }
 
   async function start() {
@@ -59,7 +60,11 @@ export default function Play() {
   return (
     <>
       <h1>HashRush</h1>
-      {!wallet ? <button onClick={connect}>Connect Phantom</button> : <p>{wallet.slice(0, 4)}…{wallet.slice(-4)}</p>}
+      {!wallet ? (<>
+        <p>Your X username (we contact winners there):</p>
+        <input value={x} onChange={(e) => setX(e.target.value)} placeholder="@yourhandle" style={{ padding: 8, marginRight: 8 }} />
+        <button onClick={connect}>Connect Phantom</button>
+      </>) : <p>{wallet.slice(0, 4)}…{wallet.slice(-4)}</p>}
       {wallet && !rounds.length && <button onClick={start}>Start (30s)</button>}
       {r && (<>
         <p>Time {(left / 1000).toFixed(1)}s · Score {score}</p>
