@@ -17,8 +17,8 @@ export default function Play() {
 
   useEffect(() => { fetch("/api/auth/me").then((r) => r.json()).then((d) => setHandle(d.x_username)); }, []);
 
-  async function signup() {
-    const r = await fetch("/api/auth/signup", { method: "POST", body: JSON.stringify({ xUsername: x }) });
+  async function login() {
+    const r = await fetch("/api/auth/login", { method: "POST", body: JSON.stringify({ xUsername: x }) });
     const d = await r.json();
     if (r.ok) { setHandle(d.x_username); setMsg(""); } else setMsg(d.error);
   }
@@ -57,9 +57,9 @@ export default function Play() {
     <>
       <h1>HashRush</h1>
       {!handle ? (<>
-        <p>Your X username (we contact winners there to send the prize; no need to connect your X account):</p>
+        <p>Log in with your X username (we contact winners there to send the prize; no need to connect your X account):</p>
         <input value={x} onChange={(e) => setX(e.target.value)} placeholder="@yourhandle" style={{ padding: 8, marginRight: 8 }} />
-        <button onClick={signup}>Sign up</button>
+        <button onClick={login}>Log in</button>
       </>) : <p>@{handle}</p>}
       {handle && !rounds.length && <button onClick={start}>Start (30s)</button>}
       {r && (<>

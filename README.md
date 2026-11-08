@@ -13,18 +13,17 @@ flowchart LR
   Y -->|DM winners on X, send tokens| W[Top 10 winners]
 ```
 
-## Sign-up
-Players enter only their **X username** (`@name`, `x.com/name` or `name`; 1-15 letters/digits/underscore, unique case-insensitive). No email, no wallet, no password. The server sets a 90-day cookie. The X account is not connected, the handle is only stored so you can DM winners and ask for their Solana address.
+## Login
+Login = enter your **X username** (`@name`, `x.com/name` or `name`). No email, no wallet, no password. A new handle creates the account; an existing handle logs straight in (90-day cookie). The X account is not connected; the handle is only stored so you can DM winners and ask for their Solana address.
 ```mermaid
 flowchart TD
   A[Player enters X username] --> B{Valid handle?}
   B -- no --> E1[400]
-  B -- yes --> C{Handle already registered?}
-  C -- yes --> E2[409 already registered]
-  C -- no --> D[Create player, set 90-day cookie]
+  B -- yes --> C[Create player if new, otherwise reuse]
+  C --> D[Set 90-day cookie]
   D --> G[Can play]
 ```
-Trade-offs: handles are not verified (someone can register another person's handle first, so confirm identity in the DM before paying), and a player who clears cookies or switches device cannot log back into the same account.
+Trade-off: the handle is not verified, so anyone can log in as any handle. Points can only be added, so the worst case is someone grinding points on another person's handle. Confirm in the DM that the winner really owns the account before paying.
 
 ## One game (server-authoritative anti-cheat)
 ```mermaid
