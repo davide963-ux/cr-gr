@@ -18,9 +18,11 @@ export default function Play() {
   useEffect(() => { fetch("/api/auth/me").then((r) => r.json()).then((d) => setHandle(d.x_username)); }, []);
 
   async function login() {
-    const r = await fetch("/api/auth/login", { method: "POST", body: JSON.stringify({ xUsername: x }) });
-    const d = await r.json();
-    if (r.ok) { setHandle(d.x_username); setMsg(""); } else setMsg(d.error);
+    try {
+      const r = await fetch("/api/auth/login", { method: "POST", body: JSON.stringify({ xUsername: x }) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok) { setHandle(d.x_username); setMsg(""); } else setMsg(d.error ?? `Login failed (${r.status})`);
+    } catch { setMsg("Network error, try again"); }
   }
 
   async function start() {

@@ -1,37 +1,38 @@
--- HashRush schema for Neon Postgres. Apply on a FRESH database with:
---   psql "$DATABASE_URL" -f db/schema.sql
--- Only ever reached from server code via DATABASE_URL.
+-- HashRush schema (idempotent). The app also applies this automatically on first DB use (src/lib/schema.ts).
+-- Manual run, if you want: paste into the Neon SQL Editor of the DB that DATABASE_URL points to.
 
-create table players (
+create table if not exists players (
   id          uuid primary key default gen_random_uuid(),
-  x_username  text not null check (x_username ~ '^[A-Za-z0-9_]{1,15}$'),  -- X handle without '@'; winners are contacted here
+  x_username  text not null check (x_username ~ '^[A-Za-z0-9_]{1,15}$'),
   created_at  timestamptz not null default now()
 );
-create unique index players_x_username_key on players (lower(x_username));
 
-create table game_sessions (
+create unique index if not exists players_x_username_key on players (lower(x_username));
+
+create table if not exists game_sessions (
   id           uuid primary key default gen_random_uuid(),
   player_id    uuid not null references players(id),
   game         text not null,
-  seed         text not null,                  -- server secret; rounds derived from it
+  seed         text not null,
   started_at   timestamptz not null default now(),
   finished_at  timestamptz,
   score        integer,
   won          boolean,
-  points       integer not null default 0,    -- points credited to the leaderboard
-  week_start   date not null                   -- Monday (UTC) of the week the points count for
+  points       integer not null default 0,
+  week_start   date not null
 );
-create index on game_sessions (week_start, player_id);
-create index on game_sessions (player_id, started_at);
 
--- Optional manual record of prizes you sent (see `npm run winners -- --record`)
-create table weekly_payouts (
+create index if not exists game_sessions_week_idx on game_sessions (week_start, player_id);
+
+create index if not exists game_sessions_player_idx on game_sessions (player_id, started_at);
+
+create table if not exists weekly_payouts (
   id            bigint generated always as identity primary key,
   week_start    date not null,
   rank          int  not null check (rank between 1 and 10),
   x_username    text not null,
   points        int  not null,
-  amount        numeric not null,              -- whole tokens
+  amount        numeric not null,
   status        text not null default 'pending' check (status in ('pending','sent')),
   tx_signature  text,
   created_at    timestamptz not null default now(),
@@ -48,5 +49,5 @@ language sql stable as $$
   group by p.id, p.x_username
   having sum(g.points) > 0
   order by 1
-  limit p_limit;
+  limit p_limit
 $$;
