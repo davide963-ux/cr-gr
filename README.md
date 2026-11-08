@@ -1,17 +1,16 @@
 # ⚡ HashRush
 
-Skill games → points → weekly leaderboard → **top 10 paid in $HASHRUSH (pump.fun / Solana) every Monday 00:05 UTC**.
+Skill games → points → weekly leaderboard → **top 10 paid in $HASHRUSH (pump.fun / Solana) every Monday (manually)**.
 
-Stack: **Next.js 15 (Vercel)** · **Neon Postgres** (`@neondatabase/serverless`) · Solana wallet login (Phantom) · Vercel Cron.
+Stack: **Next.js 15 (Vercel)** · **Neon Postgres** (`@neondatabase/serverless`) · Solana wallet login (Phantom). Prizes are sent **manually**.
 
 ## Architecture
 ```mermaid
 flowchart LR
   U[Player + Phantom] -->|HTTPS| V[Vercel: Next.js pages + API routes]
   V -->|DATABASE_URL pooled| N[(Neon Postgres)]
-  C[Vercel Cron Mon 00:05 UTC] -->|Bearer CRON_SECRET| P[/api/cron/payout/]
-  P --> N
-  P -->|SPL transfer| S[Solana RPC] --> T[$HASHRUSH holders' wallets]
+  Y[You, Monday] -->|npm run winners| N
+  Y -->|send tokens in Phantom/Solflare| W[Top 10 wallets]
 ```
 
 ## Login (no passwords – wallet signature)
@@ -48,32 +47,24 @@ flowchart TD
 ```
 `finished_at is null` in the UPDATE guarantees a session is scored once.
 
-## Monday payout
+## Monday routine (manual)
 ```mermaid
 flowchart TD
-  T[Cron Mon 00:05 UTC] --> A{CRON_SECRET ok?}
-  A -- no --> E[401]
-  A -- yes --> LB[weekly_leaderboard previous week, top 10]
-  LB --> DR{PAYOUT_DRY_RUN?}
-  DR -- true --> PL[return plan only]
-  DR -- false --> INS[INSERT weekly_payouts ON CONFLICT DO NOTHING]
-  INS --> LOOP[for each pending/failed row]
-  LOOP --> CL[claim: status = sending]
-  CL --> TX[create recipient ATA, transferChecked]
-  TX -- ok --> OK[status sent + tx signature]
-  TX -- error --> FAIL[status failed, retried next run]
+  M[Monday] --> Q[npm run winners]
+  Q --> T[table + CSV: rank, wallet, amount]
+  T --> S[send tokens from your wallet]
+  S --> R{want a record?}
+  R -- yes --> REC[npm run winners -- --record, then UPDATE status/tx_signature]
+  R -- no --> D[done]
 ```
-Split (rank 1→10): 30/20/15/10/8/6/4/3/2/2 % of `WEEKLY_PRIZE_POOL`. Ties are broken by who reached their total first.
+Split (rank 1→10): 30/20/15/10/8/6/4/3/2/2 % of `WEEKLY_PRIZE_POOL` (edit `SPLIT` in `scripts/winners.ts`). Ties go to whoever reached their total first. Weeks run Mon 00:00 → Sun 23:59 UTC, so run the script any time after Monday 00:00 UTC.
 
 ## Setup
 1. **Neon**: create project, copy the *pooled* connection string → `DATABASE_URL`. Then `psql "$DATABASE_URL" -f db/schema.sql`.
-2. **pump.fun**: launch the token, put its mint in `HASHRUSH_MINT`. Fund a *dedicated* prize wallet with tokens (+ ~0.05 SOL for fees/ATA rent); its base58 secret → `TREASURY_SECRET_KEY`.
-3. **Vercel**: import repo, set all vars from `.env.example` (`SESSION_SECRET`, `CRON_SECRET` = random 32+ chars). `vercel.json` registers the cron.
-4. Keep `PAYOUT_DRY_RUN=true` until the dry-run plan in the cron response looks right, then set `false`.
-5. Manual run: `npm run payout [YYYY-MM-DD]`. Dev: `npm run dev`; tests: `npm test`.
+2. **Vercel**: import repo, set `DATABASE_URL` and `SESSION_SECRET` (random 32+ chars).
+3. **Local** (`npm run dev`, `npm run winners`): copy `.env.example` to `.env.local`. Tests: `npm test`.
+4. Launch the token on pump.fun and keep the prize tokens in your own wallet. No keys are stored in the app.
 
 ## Known limits / before going live
 - Bots: click-timing checks only stop naive scripts. For real money consider Cloudflare Turnstile on `/game/start`, per-IP limits, and manual review of the top 10 before payout (set the DB rows, then run).
-- The treasury key lives in a Vercel env var: use a wallet holding only ~1 week of prizes.
-- A row stuck in `sending` (function crashed mid-transfer) is never auto-retried: check the chain, then fix the row by hand.
 - Prize games may be regulated as gambling/promotions in some jurisdictions; keep it free-to-play and check local rules/ToS.

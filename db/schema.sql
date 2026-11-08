@@ -35,7 +35,7 @@ create table weekly_payouts (
   wallet        text not null,
   points        int  not null,
   amount        numeric not null,              -- whole tokens
-  status        text not null default 'pending' check (status in ('pending','sending','sent','failed')),
+  status        text not null default 'pending' check (status in ('pending','sent')),
   tx_signature  text,
   error         text,
   created_at    timestamptz not null default now(),
