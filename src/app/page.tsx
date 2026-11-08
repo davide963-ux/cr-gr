@@ -5,7 +5,9 @@ import { weekStart } from "@/lib/weeks";
 export const revalidate = 15;
 export default async function Home() {
   const week = weekStart();
-  const rows = process.env.DATABASE_URL ? await sql`select * from weekly_leaderboard(${week}::date, 10)` : [];
+  let rows: Record<string, any>[] = [];
+  try { rows = process.env.DATABASE_URL ? await sql`select * from weekly_leaderboard(${week}::date, 10)` : []; }
+  catch (e) { console.error("leaderboard query failed", e); } // e.g. schema not applied yet: render empty, don't fail the build
   const next = new Date(week + "T00:00:00Z"); next.setUTCDate(next.getUTCDate() + 7);
   return (
     <>
