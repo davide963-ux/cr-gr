@@ -8,18 +8,17 @@ const SPLIT = [30, 20, 15, 10, 8, 6, 4, 3, 2, 2]; // % per rank, edit freely
 const week = process.argv.find((a) => /^\d{4}-\d{2}-\d{2}$/.test(a)) ?? previousWeekStart();
 const pool = Number(process.env.WEEKLY_PRIZE_POOL ?? 0);
 
-const top = await sql`select l.rank, l.player_id, l.x_username, p.email, l.points, l.wins
-                      from weekly_leaderboard(${week}::date, 10) l join players p on p.id = l.player_id order by l.rank`;
-const plan = top.map((r) => ({ rank: Number(r.rank), x: "@" + r.x_username, email: r.email as string, points: Number(r.points),
-  wins: Number(r.wins), amount: (pool * SPLIT[Number(r.rank) - 1]) / 100, player_id: r.player_id as string }));
+const top = await sql`select * from weekly_leaderboard(${week}::date, 10)`;
+const plan = top.map((r) => ({ rank: Number(r.rank), x: "@" + r.x_username, points: Number(r.points),
+  wins: Number(r.wins), amount: (pool * SPLIT[Number(r.rank) - 1]) / 100 }));
 
 console.log(`Week starting ${week} — pool ${pool} $HASHRUSH`);
-console.table(plan.map(({ player_id, ...p }) => p));
-console.log("rank,x,email,amount\n" + plan.map((p) => `${p.rank},${p.x},${p.email},${p.amount}`).join("\n"));
+console.table(plan);
+console.log("rank,x,amount\n" + plan.map((p) => `${p.rank},${p.x},${p.amount}`).join("\n"));
 
 if (process.argv.includes("--record")) {
   for (const p of plan)
-    await sql`insert into weekly_payouts (week_start, rank, player_id, points, amount)
-              values (${week}, ${p.rank}, ${p.player_id}, ${p.points}, ${p.amount}) on conflict (week_start, rank) do nothing`;
+    await sql`insert into weekly_payouts (week_start, rank, x_username, points, amount)
+              values (${week}, ${p.rank}, ${p.x.slice(1)}, ${p.points}, ${p.amount}) on conflict (week_start, rank) do nothing`;
   console.log("recorded (status=pending). After sending:\n  update weekly_payouts set status='sent', tx_signature='<sig>' where week_start='" + week + "' and rank=<n>;");
 }

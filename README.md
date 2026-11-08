@@ -2,7 +2,7 @@
 
 Skill games → points → weekly leaderboard → **top 10 paid in $HASHRUSH (pump.fun / Solana) every Monday (manually)**.
 
-Stack: **Next.js 15 (Vercel)** · **Neon Postgres** (`@neondatabase/serverless`) · Email magic-link signup (Resend). Prizes are sent **manually**.
+Stack: **Next.js 15 (Vercel)** · **Neon Postgres** (`@neondatabase/serverless`) · X-handle signup (no email, no wallet). Prizes are sent **manually**.
 
 ## Architecture
 ```mermaid
@@ -13,27 +13,18 @@ flowchart LR
   Y -->|DM winners on X, send tokens| W[Top 10 winners]
 ```
 
-## Sign-up and login (passwordless, verified email)
-Signup requires **email + X username** (`@name`, `x.com/name` or `name`). The X account is *not* connected, only stored so you can DM winners.
+## Sign-up
+Players enter only their **X username** (`@name`, `x.com/name` or `name`; 1-15 letters/digits/underscore, unique case-insensitive). No email, no wallet, no password. The server sets a 90-day cookie. The X account is not connected, the handle is only stored so you can DM winners and ask for their Solana address.
 ```mermaid
-sequenceDiagram
-  participant B as Browser
-  participant A as API
-  participant D as Neon
-  participant M as Resend (email)
-  B->>A: POST /api/auth/signup {email, xUsername}
-  A->>D: validate, upsert UNVERIFIED player
-  A->>D: store sha256(token), expires in 30 min
-  A->>M: email link /verify?token=...
-  B->>B: user opens link, clicks "Confirm" (POST, so email scanners can't burn it)
-  B->>A: POST /api/auth/verify {token}
-  A->>D: UPDATE token SET used_at WHERE unused AND not expired (single use)
-  A->>D: mark email_verified_at
-  A-->>B: httpOnly cookie, 30 days
+flowchart TD
+  A[Player enters X username] --> B{Valid handle?}
+  B -- no --> E1[400]
+  B -- yes --> C{Handle already registered?}
+  C -- yes --> E2[409 already registered]
+  C -- no --> D[Create player, set 90-day cookie]
+  D --> G[Can play]
 ```
-- Only **verified** accounts can play or appear on the leaderboard. One account per email, one per verified X handle.
-- Returning on a new device: "Log in" sends a new link (same flow, no password). Max 5 links/hour per account.
-- X handles are not verified: someone could type another person's handle, so DM the winner and confirm before paying.
+Trade-offs: handles are not verified (someone can register another person's handle first, so confirm identity in the DM before paying), and a player who clears cookies or switches device cannot log back into the same account.
 
 ## One game (server-authoritative anti-cheat)
 ```mermaid
@@ -57,7 +48,7 @@ flowchart TD
 ```mermaid
 flowchart TD
   M[Monday] --> Q[npm run winners]
-  Q --> T[table + CSV: rank, @handle, email, amount]
+  Q --> T[table + CSV: rank, @handle, amount]
   T --> S[send tokens from your wallet]
   S --> R{want a record?}
   R -- yes --> REC[npm run winners -- --record, then UPDATE status/tx_signature]
@@ -67,10 +58,9 @@ Split (rank 1→10): 30/20/15/10/8/6/4/3/2/2 % of `WEEKLY_PRIZE_POOL` (edit `SPL
 
 ## Setup
 1. **Neon**: create project, copy the *pooled* connection string → `DATABASE_URL`. Run `psql "$DATABASE_URL" -f db/schema.sql` on a fresh DB.
-2. **Resend**: create an account, verify your sending domain, create an API key → `RESEND_API_KEY`, `EMAIL_FROM`.
-3. **Vercel**: import repo, set `DATABASE_URL`, `SESSION_SECRET` (random 32+ chars), `APP_URL` (your https URL), `RESEND_API_KEY`, `EMAIL_FROM`.
-4. **Local**: copy `.env.example` to `.env.local`; `npm run dev` (without `RESEND_API_KEY` the login link is printed in the terminal). Tests: `npm test`. Weekly winners: `npm run winners`.
-5. Launch the token on pump.fun and keep the prize tokens in your own wallet. No keys are stored in the app.
+2. **Vercel**: import repo, set `DATABASE_URL` and `SESSION_SECRET` (random 32+ chars).
+3. **Local**: copy `.env.example` to `.env.local`; `npm run dev`. Tests: `npm test`. Weekly winners: `npm run winners`.
+4. Launch the token on pump.fun and keep the prize tokens in your own wallet. No keys are stored in the app.
 
 ## Known limits / before going live
 - Bots: click-timing checks only stop naive scripts. For real money consider Cloudflare Turnstile on `/game/start`, per-IP limits, and manual review of the top 10 before payout (set the DB rows, then run).

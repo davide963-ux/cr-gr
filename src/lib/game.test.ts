@@ -2,7 +2,6 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildRounds, scoreSession, TILES, MIN_CLICK_GAP_MS } from "./game";
 import { parseXHandle } from "./x";
-import { parseEmail, hashToken } from "./email";
 import { weekStart, previousWeekStart } from "./weeks";
 
 test("rounds are deterministic and have exactly one matching tile", () => {
@@ -46,12 +45,4 @@ test("X handle parsing", () => {
   assert.equal(parseXHandle("bad handle!"), null);
   assert.equal(parseXHandle("waytoolongusername123"), null);
   assert.equal(parseXHandle(""), null);
-});
-
-test("email parsing + token hashing", () => {
-  assert.equal(parseEmail("  Foo@Example.COM "), "foo@example.com");
-  assert.equal(parseEmail("nope"), null);
-  assert.equal(parseEmail("a b@c.com"), null);
-  assert.equal(hashToken("x"), hashToken("x"));
-  assert.notEqual(hashToken("x"), hashToken("y"));
 });

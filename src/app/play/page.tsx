@@ -7,9 +7,6 @@ const DURATION = 30_000;
 
 export default function Play() {
   const [handle, setHandle] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
-  const [mode, setMode] = useState<"signup" | "login">("signup");
-  const [sent, setSent] = useState(false);
   const [rounds, setRounds] = useState<Round[]>([]);
   const [i, setI] = useState(0);
   const [score, setScore] = useState(0);
@@ -20,10 +17,10 @@ export default function Play() {
 
   useEffect(() => { fetch("/api/auth/me").then((r) => r.json()).then((d) => setHandle(d.x_username)); }, []);
 
-  async function submitAuth() {
-    const r = await fetch(`/api/auth/${mode}`, { method: "POST", body: JSON.stringify({ email, xUsername: x }) });
+  async function signup() {
+    const r = await fetch("/api/auth/signup", { method: "POST", body: JSON.stringify({ xUsername: x }) });
     const d = await r.json();
-    if (r.ok) { setSent(true); setMsg(""); } else setMsg(d.error);
+    if (r.ok) { setHandle(d.x_username); setMsg(""); } else setMsg(d.error);
   }
 
   async function start() {
@@ -59,14 +56,11 @@ export default function Play() {
   return (
     <>
       <h1>HashRush</h1>
-      {!handle ? (sent ? <p>📧 Check your inbox and click the link to confirm your email (valid 30 min).</p> : (<>
-        <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email" type="email" style={{ padding: 8, marginRight: 8 }} />
-        {mode === "signup" && <input value={x} onChange={(e) => setX(e.target.value)} placeholder="X username, e.g. @yourhandle" style={{ padding: 8, marginRight: 8 }} />}
-        <button onClick={submitAuth}>{mode === "signup" ? "Sign up" : "Email me a login link"}</button>
-        <p><a href="#" onClick={(e) => { e.preventDefault(); setMode(mode === "signup" ? "login" : "signup"); setMsg(""); }} style={{ color: "#58a6ff" }}>
-          {mode === "signup" ? "Already registered? Log in" : "New here? Sign up"}</a></p>
-        {mode === "signup" && <p style={{ fontSize: 12, opacity: 0.7 }}>We contact winners on X to send the prize. You don&apos;t need to connect your X account.</p>}
-      </>)) : <p>@{handle}</p>}
+      {!handle ? (<>
+        <p>Your X username (we contact winners there to send the prize; no need to connect your X account):</p>
+        <input value={x} onChange={(e) => setX(e.target.value)} placeholder="@yourhandle" style={{ padding: 8, marginRight: 8 }} />
+        <button onClick={signup}>Sign up</button>
+      </>) : <p>@{handle}</p>}
       {handle && !rounds.length && <button onClick={start}>Start (30s)</button>}
       {r && (<>
         <p>Time {(left / 1000).toFixed(1)}s · Score {score}</p>
