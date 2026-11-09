@@ -12,3 +12,10 @@ export function previousWeekStart(d: Date = new Date()): string {
   x.setUTCDate(x.getUTCDate() - 7);
   return x.toISOString().slice(0, 10);
 }
+
+/** Next Monday 00:00 UTC (when the current week closes and prizes are sent). */
+export function nextWeekStart(d: Date = new Date()): Date {
+  const x = new Date(weekStart(d) + "T00:00:00Z");
+  x.setUTCDate(x.getUTCDate() + 7);
+  return x;
+}

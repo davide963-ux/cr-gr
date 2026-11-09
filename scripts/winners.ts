@@ -4,7 +4,7 @@
 import { sql } from "../src/lib/db";
 import { previousWeekStart } from "../src/lib/weeks";
 
-const SPLIT = [30, 20, 15, 10, 8, 6, 4, 3, 2, 2]; // % per rank, edit freely
+import { SPLIT } from "../src/lib/prizes";
 const week = process.argv.find((a) => /^\d{4}-\d{2}-\d{2}$/.test(a)) ?? previousWeekStart();
 const pool = Number(process.env.WEEKLY_PRIZE_POOL ?? 0);
 

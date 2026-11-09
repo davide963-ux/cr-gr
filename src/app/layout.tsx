@@ -1,8 +1,16 @@
-export const metadata = { title: "HashRush", description: "Win points. Climb the board. Get paid in $HASHRUSH every Monday." };
+import "./globals.css";
+import Header from "@/components/Header";
+
+export const metadata = { title: "HashRush — play, win points, get paid", description: "Win games, climb the weekly leaderboard, top 10 get paid in $HASHRUSH every Monday." };
 export default function Root({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en"><body style={{ margin: 0, background: "#0b0f14", color: "#e6edf3", fontFamily: "ui-monospace,Menlo,monospace" }}>
-      <main style={{ maxWidth: 760, margin: "0 auto", padding: 24 }}>{children}</main>
-    </body></html>
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" />
+      </head>
+      <body><Header /><div className="wrap">{children}</div></body>
+    </html>
   );
 }
