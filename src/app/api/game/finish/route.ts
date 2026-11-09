@@ -6,12 +6,13 @@ export async function POST(req: Request) {
   const playerId = await getPlayerId();
   if (!playerId) return Response.json({ error: "sign in first" }, { status: 401 });
   const body = await req.json().catch(() => ({}));
+  if (typeof body?.id !== "string") return Response.json({ error: "bad request" }, { status: 400 });
 
-  const rows = await sql`select game, seed, extract(epoch from (now() - started_at)) * 1000 as elapsed
+  const rows = await sql`select game, seed, state, extract(epoch from (now() - started_at)) * 1000 as elapsed
                          from game_sessions where id = ${body.id} and player_id = ${playerId} and finished_at is null`;
   if (!rows.length || !isGameId(rows[0].game)) return Response.json({ error: "unknown or already finished" }, { status: 404 });
 
-  const v = GAMES[rows[0].game].finish(rows[0].seed, body, Number(rows[0].elapsed));
+  const v = GAMES[rows[0].game].finish(rows[0].seed, body, Number(rows[0].elapsed), rows[0].state);
   const { score, won, points } = v.ok ? v : { score: 0, won: false, points: 0 };
   // `finished_at is null` guard => a session can be scored exactly once
   const upd = await sql`update game_sessions set finished_at = now(), score = ${score}, won = ${won}, points = ${points}

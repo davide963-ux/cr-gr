@@ -22,6 +22,8 @@ create table if not exists game_sessions (
   week_start   date not null
 );
 
+alter table game_sessions add column if not exists state jsonb;
+
 create index if not exists game_sessions_week_idx on game_sessions (week_start, player_id);
 
 create index if not exists game_sessions_player_idx on game_sessions (player_id, started_at);

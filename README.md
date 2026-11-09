@@ -26,20 +26,32 @@ flowchart TD
 Trade-off: the handle is not verified, so anyone can log in as any handle. Points can only be added, so the worst case is someone grinding points on another person's handle. Confirm in the DM that the winner really owns the account before paying.
 
 ## Games
-No games are live right now (the first two were removed). The plumbing for adding one is in place:
+| Game | Route | Rules | Win (score becomes points) | How the server checks it |
+|---|---|---|---|---|
+| Block Stack (tetris-style) | `/play/blocks` | 2 minutes, lines score 10/25/40/60 | score >= 100 | replays the input log in the same engine |
+| Brick Chaos | `/play/bricks` | 3 levels (wall, moving bricks, boss), power-ups, 3 lives, 6 min cap | level 1 cleared | replays the paddle log in the same physics engine |
+| Minefield | `/play/mines` | easy / medium / hard, random map shape, time limit, speed bonus | all safe squares opened | mine layout never leaves the server: one request per click |
+| Color Sort | `/play/sort` | 5 levels, more colours and fewer spare moves each | 2+ levels cleared | replays the move list; levels are solver-checked |
 
 ```mermaid
 flowchart TD
-  S[POST /api/game/start: game id] --> SEED[server stores a secret seed, returns start data without answers]
-  SEED --> P[player plays in the browser]
-  P --> F[POST /api/game/finish: the player's inputs]
-  F --> V[game verifier replays inputs against the seed and checks the clock]
-  V -- invalid --> Z[score 0, session burned]
-  V -- valid --> W{won?}
+  S[POST /api/game/start: game id] --> SEED[server stores a seed and optional secret state]
+  SEED --> K{game type}
+  K -- replay games --> P[browser runs the shared engine from src/lib/games and logs inputs]
+  P --> F[POST /api/game/finish: the input log]
+  F --> V[server re-runs the same engine on the log, checks the clock, takes ITS score]
+  K -- Minefield --> M[POST /api/game/move per click]
+  M --> R[server reveals only the opened cells, scores the session when it ends]
+  V --> W{won?}
+  R --> W
   W -- yes --> PTS[points = score added to this week]
   W -- no --> N[0 points]
 ```
-To add a game: a `GameDef` (`start` + `finish`) and a `CATALOG` entry in `src/lib/games.ts`, plus a page under `src/app/play/<id>/`. Each session is scored exactly once; cap of 50 sessions per game per player per day.
+- Engines live in `src/lib/games/*.ts` and are imported by both the page and the API, so client and server can never disagree. They use a seeded PRNG and only deterministic maths.
+- Replay games also enforce real time: a 2-minute game cannot be submitted after 20 seconds.
+- Each session is scored exactly once; cap of 50 sessions per game per player per day.
+- To add a game: an engine + `GameDef` and `CATALOG` entry in `src/lib/games.ts`, and a page under `src/app/play/<id>/`.
+- Limit: in replay games the browser knows the seed, so a bot can play well. It still has to play in real time. Minefield hides its secret properly.
 
 ## Monday routine (manual)
 ```mermaid

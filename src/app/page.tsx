@@ -21,8 +21,8 @@ export default async function Home() {
       <section className="promos">
         <Link href="/#prizes" className="promo p1"><span className="px">TOP 10<br />GET PAID</span><small>$HASHRUSH every Monday</small></Link>
         <div className="promo p2"><span className="px">NEXT PAYOUT</span><Countdown to={nextWeekStart().toISOString()} compact /></div>
-        <Link href="/play" className="promo p3"><span className="px">GAMES</span><small>First games coming soon</small></Link>
-        <div className="promo p4"><span className="px">GET READY</span><small>Log in with your X username now</small></div>
+        <Link href="/play" className="promo p3"><span className="px">4 GAMES LIVE</span><small>Blocks · Bricks · Mines · Sort</small></Link>
+        <Link href="/play/bricks" className="promo p4"><span className="px">BEAT THE BOSS</span><small>Brick Chaos · 3 levels</small></Link>
       </section>
 
       <section className="cols">
@@ -32,7 +32,7 @@ export default async function Home() {
           <div className="roomwrap"><Room /></div>
           <div className="roombar">
             <span className="rl">Games:</span>
-            <span className="rb lock">1</span><span className="rb lock">2</span><span className="rb lock">3</span><span className="rb lock">4</span>
+            <Link href="/play/blocks" className="rb on" title="Block Stack">1</Link><Link href="/play/bricks" className="rb on" title="Brick Chaos">2</Link><Link href="/play/mines" className="rb on" title="Minefield">3</Link><Link href="/play/sort" className="rb on" title="Color Sort">4</Link>
             <Link href="/play" className="btn sm neon" style={{ marginLeft: "auto" }}>▶ Games</Link>
           </div>
           <p className="hint">Welcome to HashRush! Log in with your X username, win games to earn points, and climb the weekly leaderboard. The top 10 are paid in $HASHRUSH every Monday.</p>
@@ -62,7 +62,8 @@ export default async function Home() {
             <h2 className="px">HOW IT WORKS</h2>
             <ol className="rules">
               <li>Log in with your X username.</li>
-              <li>Play the games and win to earn points.</li>
+              <li>Play Block Stack, Brick Chaos, Minefield or Color Sort.</li>
+              <li>Win a game and its score is added to your weekly points.</li>
               <li>The week runs Monday–Sunday (UTC). Top 10 get paid on Monday.</li>
             </ol>
           </div>

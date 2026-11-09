@@ -7,7 +7,7 @@ export default function SidePanel() {
   const used = me?.gamesToday ?? 0;
   return (
     <div className="stack">
-      <Link href="/play" className="banner b1 px">GAMES<small>COMING SOON</small></Link>
+      <Link href="/play" className="banner b1 px">GAMES<small>4 GAMES LIVE</small></Link>
       <Link href="/leaderboard" className="banner b2 px">LEADERBOARD<small>TOP 10 GET PAID</small></Link>
       <div className="panel quests">
         <div className="tabs"><span className="on">Today</span><span>This week</span></div>

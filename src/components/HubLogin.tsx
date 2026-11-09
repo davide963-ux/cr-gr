@@ -9,7 +9,7 @@ export default function HubLogin() {
   return (
     <div className="panel" style={{ marginBottom: 16 }}>
       {me.x_username
-        ? <p style={{ margin: 0 }}>Logged in as <b style={{ color: "var(--cyan)" }}>@{me.x_username}</b>. You&apos;re all set for when the games go live.</p>
+        ? <p style={{ margin: 0 }}>Logged in as <b style={{ color: "var(--cyan)" }}>@{me.x_username}</b>. Pick a game below.</p>
         : <><h2 className="px">LOG IN</h2><LoginBox /></>}
     </div>
   );
