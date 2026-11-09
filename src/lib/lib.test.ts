@@ -29,7 +29,7 @@ test("game registry rejects unknown / prototype keys", () => {
 // ---------- game engines: a logged play must replay to the same score on the "server" ----------
 import { rng } from "./games/rng";
 import { Tetris, scoreTetris, TPS as TTPS } from "./games/tetris";
-import { BrickGame, scoreBrick, W, TPS as BTPS } from "./games/brick";
+import { BrickGame, scoreBrick, W, VOLLEYS, TPS as BTPS } from "./games/brick";
 import { SortGame, scoreSort, solve, solved, genLevel, SORT_LEVELS } from "./games/sort";
 import { startMines, moveMines, layMines, mask, MINE_LEVELS, type MineState } from "./games/mines";
 import { GAMES } from "./games";
@@ -68,33 +68,45 @@ test("blocks: clearing lines scores (flat fill clears a row)", () => {
   assert.ok(g.score % 5 === 0);
 });
 
-/** simple bot: keep the paddle (roughly) under the lowest ball */
+/** simple bot: keep the paddle (roughly) under the lowest ball, fire whenever it can */
 function botBrick(seed: string, maxTicks: number) {
-  const g = new BrickGame(seed), log: number[] = [];
+  const g = new BrickGame(seed), log: number[] = [], fires: number[] = [];
   let last = W / 2;
   while (!g.over && g.tick < maxTicks) {
     let x = last;
     if (g.balls.length) { const b = g.balls.reduce((m, q) => (q.y > m.y ? q : m)); x = Math.max(0, Math.min(W, Math.round(b.x + ((Math.floor(g.tick / 45) % 5) - 2) * 11))); } // vary the hit point so the ball changes angle
     for (const s of g.shots) if (s.y > 440 && Math.abs(s.x - x) < 60) x = Math.max(0, Math.min(W, Math.round(s.x < x ? x + 45 : x - 45)));
     if (x !== last) { log.push(g.tick, x); last = x; }
-    g.step(x);
+    const fire = g.ammo > 0 && g.tick >= g.fireAt && g.tick % 40 === 0;
+    if (fire) fires.push(g.tick);
+    g.step(x, fire);
   }
-  return { g, log };
+  return { g, log, fires };
 }
-test("bricks: bot clears levels, replay gives the identical score", () => {
+test("bricks: bot clears levels with bullets, replay gives the identical score", () => {
   for (const seed of ["s1", "s2"]) {
-    const { g, log } = botBrick(seed, 21600);
+    const { g, log, fires } = botBrick(seed, 30000);
     assert.ok(g.cleared >= 1, `bot cleared ${g.cleared} levels, score ${g.score}`);
+    assert.ok(fires.length >= VOLLEYS);
     const ms = (g.tick / BTPS) * 1000;
-    const v = scoreBrick(seed, { log, ticks: g.tick }, ms);
+    const v = scoreBrick(seed, { log, fires, ticks: g.tick }, ms);
     assert.ok(v.ok && v.score === g.score && v.won);
-    assert.equal(scoreBrick(seed, { log, ticks: g.tick }, ms / 3).ok, false);
-    // a different log (paddle parked) must not reproduce that score
-    const idle = scoreBrick(seed, { log: [], ticks: g.tick }, ms);
-    assert.ok(idle.ok && idle.score < g.score);
+    assert.equal(scoreBrick(seed, { log, fires, ticks: g.tick }, ms / 3).ok, false);
+    // without the bullets (or with the paddle parked) the same score must not come out
+    const noFire = scoreBrick(seed, { log, ticks: g.tick }, ms);
+    assert.ok(noFire.ok && noFire.score !== g.score);
   }
   assert.equal(scoreBrick("s1", { log: [3, 999], ticks: 10 }, 1e6).ok, false);
   assert.equal(scoreBrick("s1", { log: [3, 10, 3, 20], ticks: 10 }, 1e6).ok, false);
+  assert.equal(scoreBrick("s1", { log: [], fires: [5, 5], ticks: 10 }, 1e6).ok, false);
+});
+test("bricks: a volley is 3 bullets, only 10 volleys, cooldown respected", () => {
+  const g = new BrickGame("ammo");
+  g.step(200, true); assert.equal(g.bullets.length, 3); assert.equal(g.ammo, VOLLEYS - 1);
+  g.step(200, true); assert.equal(g.ammo, VOLLEYS - 1);            // cooldown
+  for (let i = 0; i < 400; i++) g.step(200, true);
+  assert.equal(g.ammo, 0);
+  const before = g.score; assert.ok(before > 0);                     // bullets broke bricks
 });
 
 test("sort: every level is solvable in its limit; solver's moves replay to a win", () => {

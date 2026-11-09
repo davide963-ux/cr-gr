@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Shell, ResultCard, post, toResult, refreshMe, useTicker, ctx2d, type Result } from "@/components/GameShell";
-import { Tetris, cellsOf, COLS, ROWS, MAX_TICKS, TPS, A } from "@/lib/games/tetris";
+import { Tetris, cellsOf, COLS, ROWS, A } from "@/lib/games/tetris";
 
 const S = 24, COLORS = ["#17e8e8", "#ffd24a", "#8a5cff", "#3ddc84", "#ff5470", "#4a7dff", "#ff9a1f"];
 const KEYS: Record<string, number> = { ArrowLeft: A.LEFT, ArrowRight: A.RIGHT, ArrowUp: A.ROTATE, x: A.ROTATE, ArrowDown: A.SOFT, " ": A.HARD };
@@ -13,7 +13,7 @@ function block(c: CanvasRenderingContext2D, x: number, y: number, color: string,
 
 function Game() {
   const [phase, setPhase] = useState<"idle" | "play" | "over">("idle");
-  const [hud, setHud] = useState({ score: 0, lines: 0, left: MAX_TICKS / TPS });
+  const [hud, setHud] = useState({ score: 0, lines: 0, speed: 1 });
   const [result, setResult] = useState<Result | null>(null);
   const [msg, setMsg] = useState(""); const [busy, setBusy] = useState(false);
   const cv = useRef<HTMLCanvasElement>(null), nx = useRef<HTMLCanvasElement>(null);
@@ -66,8 +66,8 @@ function Game() {
     for (const [dx, dy] of cellsOf(g.type, g.rot)) if (g.y + dy >= 0) block(c, g.x + dx, g.y + dy, COLORS[g.type]);
     const n = ctx2d(nx.current, 80, 80);
     if (n) { n.fillStyle = "#0c0c2c"; n.fillRect(0, 0, 80, 80); for (const [dx, dy] of cellsOf(g.next[0], 0)) block(n, dx + 0.2, dy + 0.6, COLORS[g.next[0]], 18); }
-    const left = Math.ceil((MAX_TICKS - g.tick) / TPS);
-    setHud((h) => (h.score === g.score && h.lines === g.lines && h.left === left ? h : { score: g.score, lines: g.lines, left }));
+    const speed = g.level + 1;
+    setHud((h) => (h.score === g.score && h.lines === g.lines && h.speed === speed ? h : { score: g.score, lines: g.lines, speed }));
   });
 
   const pad = (label: string, a: number) => (
@@ -75,7 +75,7 @@ function Game() {
   );
   return (
     <>
-      {phase === "idle" && <div className="result"><p>Stack the blocks and clear lines. You have 2 minutes.</p><button className="btn" onClick={start} disabled={busy}>▶ Start</button></div>}
+      {phase === "idle" && <div className="result"><p>Stack the blocks and clear lines. No timer: the longer you last, the faster they fall.</p><button className="btn" onClick={start} disabled={busy}>▶ Start</button></div>}
       {phase !== "idle" && (
         <div className="tetris">
           <canvas ref={cv} className="board" style={{ width: `min(${COLS * S}px, calc(100% - 122px), calc((100vh - 300px) * ${COLS / ROWS}))`, minWidth: 170, aspectRatio: `${COLS} / ${ROWS}` }} />
@@ -83,12 +83,12 @@ function Game() {
             <div className="stat"><span>Next</span><canvas ref={nx} style={{ width: 80, height: 80 }} /></div>
             <div className="stat"><span>Score</span><b>{hud.score}</b></div>
             <div className="stat"><span>Lines</span><b>{hud.lines}</b></div>
-            <div className="stat"><span>Time</span><b>{hud.left}s</b></div>
+            <div className="stat"><span>Speed</span><b>×{hud.speed}</b></div>
           </div>
         </div>
       )}
       {phase === "play" && <div className="tpad">{pad("◀", A.LEFT)}{pad("⟳", A.ROTATE)}{pad("▶", A.RIGHT)}{pad("▼", A.SOFT)}{pad("⤓", A.HARD)}</div>}
-      {phase === "over" && (result ? <ResultCard result={result} hint="you need 100 to win points" onAgain={start} busy={busy} /> : <div className="empty">Checking your score…</div>)}
+      {phase === "over" && (result ? <ResultCard result={result} hint="you need 60 to win points" onAgain={start} busy={busy} /> : <div className="empty">Checking your score…</div>)}
       <div className="msg">{msg}</div>
     </>
   );
@@ -98,9 +98,9 @@ export default function Page() {
   return (
     <Shell title="BLOCK STACK" rules={<>
       <li>Move with <b>← →</b>, rotate with <b>↑</b>, soft drop <b>↓</b>, hard drop <b>Space</b> (or the on-screen buttons).</li>
-      <li>Clear 1 / 2 / 3 / 4 lines at once for <b>10 / 25 / 40 / 60</b>.</li>
-      <li>The game lasts 2 minutes and speeds up as you clear lines.</li>
-      <li>Score <b>100+</b> = a won game; your score becomes points.</li>
+      <li>Clear 1 / 2 / 3 / 4 lines at once for <b>20 / 50 / 80 / 120</b>.</li>
+      <li>No timer. Blocks fall faster every <b>15 seconds</b>; play until the stack reaches the top.</li>
+      <li>Score <b>60+</b> = a won game; your score becomes points.</li>
     </>}>{() => <Game />}</Shell>
   );
 }

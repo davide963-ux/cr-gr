@@ -3,9 +3,10 @@
 import { rng, shuffle } from "./rng";
 import { bad, verdict, type Verdict } from "./types";
 
-export const COLS = 10, ROWS = 20, TPS = 60, MAX_TICKS = 120 * TPS; // 2-minute game
-export const LINE_SCORE = [0, 10, 25, 40, 60];
-export const WIN_SCORE = 100;
+export const COLS = 10, ROWS = 20, TPS = 60, MAX_TICKS = 20 * 60 * TPS; // safety cap only (20 min); the game ends when the stack tops out
+export const LINE_SCORE = [0, 20, 50, 80, 120];
+export const SPEED_EVERY = 15 * TPS; // the fall speed steps up every 15 seconds played
+export const WIN_SCORE = 60;
 export const A = { LEFT: 0, RIGHT: 1, ROTATE: 2, SOFT: 3, HARD: 4 } as const;
 
 // piece cells inside an n×n box (rotation 0)
@@ -54,8 +55,9 @@ export class Tetris {
     }
     return true;
   }
-  get level() { return Math.floor(this.lines / 8); }
-  get gravity() { return Math.max(5, 36 - this.level * 5); } // ticks per row
+  /** Speed level: rises with time played, not with lines. */
+  get level() { return Math.floor(this.tick / SPEED_EVERY); }
+  get gravity() { return Math.max(4, 34 - this.level * 3); } // ticks per row
   ghostY(): number { let y = this.y; while (this.fits(this.x, y + 1, this.rot)) y++; return y; }
 
   private lock() {
@@ -98,7 +100,7 @@ export class Tetris {
 /** Server: replay the input log ([tick, action, tick, action, …]) and score it. */
 export function scoreTetris(seed: string, body: any, elapsedMs: number): Verdict {
   const log = body?.log, ticks = body?.ticks;
-  if (!Array.isArray(log) || log.length % 2 || log.length > 24000) return bad("bad log");
+  if (!Array.isArray(log) || log.length % 2 || log.length > 120000) return bad("bad log");
   if (!Number.isInteger(ticks) || ticks < 0 || ticks > MAX_TICKS) return bad("bad ticks");
   let prev = 0;
   for (let i = 0; i < log.length; i += 2) {

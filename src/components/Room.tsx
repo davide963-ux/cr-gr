@@ -23,8 +23,8 @@ export default function Room() {
       {/* poster */}
       <rect x="70" y="10" width="20" height="26" fill="#1a1a3e" /><rect x="71" y="11" width="18" height="24" fill="#ff9a1f" />
       <rect x="71" y="23" width="18" height="12" fill="#8a5cff" />
-      <text x="80" y="21" textAnchor="middle" fontSize="6" fontFamily="'Pixelify Sans', monospace" fontWeight="700" fill="#1a1a3e">#A3F</text>
-      <text x="80" y="31" textAnchor="middle" fontSize="4" fontFamily="'Pixelify Sans', monospace" fill="#fff">RUSH</text>
+      <text x="80" y="21" textAnchor="middle" fontSize="6" fontFamily="'Jersey 20', monospace" fontWeight="700" fill="#1a1a3e">#A3F</text>
+      <text x="80" y="31" textAnchor="middle" fontSize="4" fontFamily="'Jersey 20', monospace" fill="#fff">RUSH</text>
 
       {/* clock */}
       <circle cx="97" cy="14" r="6" fill="#e9e4d4" stroke="#4a3322" strokeWidth="1.5" />
@@ -79,9 +79,9 @@ export default function Room() {
         <rect x="106" y="26" width="32" height="19" fill="#34e5ff" opacity="0.06" className="flick" />
       </g>
       <rect x="120" y="49" width="4" height="3" fill="#15152e" /><rect x="114" y="51" width="16" height="1" fill="#15152e" />
-      <text className="pop p1" x="132" y="21" fontSize="5" fontFamily="'Pixelify Sans', monospace" fontWeight="700" fill="#3ddc84">+10</text>
-      <text className="pop p2" x="116" y="21" fontSize="5" fontFamily="'Pixelify Sans', monospace" fontWeight="700" fill="#ffd24a">+10</text>
-      <text className="pop p3" x="124" y="21" fontSize="5" fontFamily="'Pixelify Sans', monospace" fontWeight="700" fill="#34e5ff">WIN</text>
+      <text className="pop p1" x="132" y="21" fontSize="5" fontFamily="'Jersey 20', monospace" fontWeight="700" fill="#3ddc84">+10</text>
+      <text className="pop p2" x="116" y="21" fontSize="5" fontFamily="'Jersey 20', monospace" fontWeight="700" fill="#ffd24a">+10</text>
+      <text className="pop p3" x="124" y="21" fontSize="5" fontFamily="'Jersey 20', monospace" fontWeight="700" fill="#34e5ff">WIN</text>
 
       {/* keyboard, mouse, mug */}
       <rect x="84" y="50" width="19" height="2" fill="#2a2a3e" /><rect x="85" y="50" width="17" height="1" fill="#4a4a6e" className="keys" />

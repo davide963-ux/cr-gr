@@ -22,7 +22,7 @@ export default async function Home() {
         <Link href="/#prizes" className="promo p1"><span className="px">TOP 10<br />GET PAID</span><small>$HASHRUSH every Monday</small></Link>
         <div className="promo p2"><span className="px">NEXT PAYOUT</span><Countdown to={nextWeekStart().toISOString()} compact /></div>
         <Link href="/play" className="promo p3"><span className="px">4 GAMES LIVE</span><small>Blocks · Bricks · Mines · Sort</small></Link>
-        <Link href="/play/bricks" className="promo p4"><span className="px">BEAT THE BOSS</span><small>Brick Chaos · 3 levels</small></Link>
+        <Link href="/play/bricks" className="promo p4"><span className="px">BEAT THE BOSS</span><small>Brick Chaos · endless levels</small></Link>
       </section>
 
       <section className="cols">

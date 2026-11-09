@@ -68,7 +68,7 @@ function Mines() {
   for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
     const x = 28 + c * 15, y = 3 + r * 15, k = `${c},${r}`;
     out.push(open.has(k)
-      ? <g key={k}><rect x={x} y={y} width="14" height="14" fill="#14153a" />{nums[k] && <text x={x + 7} y={y + 11} textAnchor="middle" fontSize="11" fontWeight="700" fontFamily="'Pixelify Sans', monospace" fill={nums[k][1]}>{nums[k][0]}</text>}</g>
+      ? <g key={k}><rect x={x} y={y} width="14" height="14" fill="#14153a" />{nums[k] && <text x={x + 7} y={y + 11} textAnchor="middle" fontSize="11" fontWeight="700" fontFamily="'Jersey 20', monospace" fill={nums[k][1]}>{nums[k][0]}</text>}</g>
       : <g key={k}><rect x={x} y={y} width="14" height="14" fill="#3f45a0" /><rect x={x} y={y} width="14" height="2" fill="#fff" opacity=".3" /><rect x={x} y={y + 11} width="14" height="3" fill="#000" opacity=".28" /></g>);
   }
   return (

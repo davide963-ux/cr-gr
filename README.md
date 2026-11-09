@@ -28,8 +28,8 @@ Trade-off: the handle is not verified, so anyone can log in as any handle. Point
 ## Games
 | Game | Route | Rules | Win (score becomes points) | How the server checks it |
 |---|---|---|---|---|
-| Block Stack (tetris-style) | `/play/blocks` | 2 minutes, lines score 10/25/40/60 | score >= 100 | replays the input log in the same engine |
-| Brick Chaos | `/play/bricks` | 3 levels (wall, moving bricks, boss), power-ups, 3 lives, 6 min cap | level 1 cleared | replays the paddle log in the same physics engine |
+| Block Stack (tetris-style) | `/play/blocks` | no timer, falls faster every 15s, lines score 20/50/80/120 | score >= 60 | replays the input log in the same engine |
+| Brick Chaos | `/play/bricks` | endless levels (5 patterns, boss every 5th), power-ups, 10 volleys of 3 bullets, 3 lives, no timer | score >= 60 | replays the paddle + fire log in the same physics engine |
 | Minefield | `/play/mines` | easy / medium / hard, random map shape, time limit, speed bonus | all safe squares opened | mine layout never leaves the server: one request per click |
 | Color Sort | `/play/sort` | 5 levels, more colours and fewer spare moves each | 2+ levels cleared | replays the move list; levels are solver-checked |
 
@@ -48,7 +48,7 @@ flowchart TD
   W -- no --> N[0 points]
 ```
 - Engines live in `src/lib/games/*.ts` and are imported by both the page and the API, so client and server can never disagree. They use a seeded PRNG and only deterministic maths.
-- Replay games also enforce real time: a 2-minute game cannot be submitted after 20 seconds.
+- Replay games also enforce real time: a game of N ticks cannot be submitted before N/60 seconds have passed. Block Stack and Brick Chaos have a 20-minute safety cap.
 - Each session is scored exactly once; cap of 50 sessions per game per player per day.
 - To add a game: an engine + `GameDef` and `CATALOG` entry in `src/lib/games.ts`, and a page under `src/app/play/<id>/`.
 - Limit: in replay games the browser knows the seed, so a bot can play well. It still has to play in real time. Minefield hides its secret properly.

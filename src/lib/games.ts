@@ -30,8 +30,8 @@ export const isGameId = (g: unknown): g is string => typeof g === "string" && Ob
 /** Public catalogue used by the UI (hub, home). */
 export type CatalogEntry = { id: string; name: string; href: string; live: boolean; icon: string; desc: string; bg: string };
 export const CATALOG: CatalogEntry[] = [
-  { id: "blocks", name: "BLOCK STACK", href: "/play/blocks", live: true, icon: "▟▙", desc: "Stack falling blocks and clear lines for 2 minutes. Score 100+ to win.", bg: "linear-gradient(135deg,#8a5cff,#17e8e8)" },
-  { id: "bricks", name: "BRICK CHAOS", href: "/play/bricks", live: true, icon: "▬●", desc: "Break bricks, grab power-ups, beat the boss. Clear level 1 to win.", bg: "linear-gradient(135deg,#ff5470,#ff9a1f)" },
+  { id: "blocks", name: "BLOCK STACK", href: "/play/blocks", live: true, icon: "▟▙", desc: "Stack blocks and clear lines. It gets faster the longer you last. Score 60+ to win.", bg: "linear-gradient(135deg,#8a5cff,#17e8e8)" },
+  { id: "bricks", name: "BRICK CHAOS", href: "/play/bricks", live: true, icon: "▬●", desc: "Break bricks, shoot bullets, beat the bosses. Endless levels. Score 60+ to win.", bg: "linear-gradient(135deg,#ff5470,#ff9a1f)" },
   { id: "mines", name: "MINEFIELD", href: "/play/mines", live: true, icon: "✹", desc: "Open every safe square before the clock runs out. Faster = more points.", bg: "linear-gradient(135deg,#3ddc84,#0f4d6b)" },
   { id: "sort", name: "COLOR SORT", href: "/play/sort", live: true, icon: "◍◍", desc: "Sort the balls by colour within the move limit. Clear 2 levels to win.", bg: "linear-gradient(135deg,#ffd24a,#ff5470)" },
 ];

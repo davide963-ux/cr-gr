@@ -20,7 +20,7 @@ export default function SidePanel() {
             </div>
             <div className="quest">
               <div className="qic">🏆</div>
-              <div className="qtx"><b>Win games (100+ score)</b><small>{me.wins ?? 0} wins this week · {(me.points ?? 0).toLocaleString()} pts</small></div>
+              <div className="qtx"><b>Win games</b><small>{me.wins ?? 0} wins this week · {(me.points ?? 0).toLocaleString()} pts</small></div>
               <Link href="/play" className="btn sm">Start</Link>
             </div>
           </>
