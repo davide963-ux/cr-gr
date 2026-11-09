@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CATALOG } from "@/lib/games";
+import GameLogo from "./GameLogo";
 
 export default function GameCards() {
   if (!CATALOG.length) return <div className="empty"><span className="px" style={{ fontSize: 22, color: "var(--cyan)" }}>NEW GAMES COMING SOON</span><br />We&apos;re building the first games. Log in now so you&apos;re ready when they drop.</div>;
@@ -9,7 +10,7 @@ export default function GameCards() {
         const inner = (
           <>
             <span className={`tag px ${g.live ? "live" : ""}`}>{g.live ? "LIVE" : "SOON"}</span>
-            <div className="thumb px" style={{ background: g.bg }}>{g.icon}</div>
+            <div className="thumb px" style={{ background: g.bg }}><GameLogo id={g.id} name={g.name} /></div>
             <div className="body"><div className="name px">{g.name}</div><div className="meta">{g.desc}</div>{g.live && <span className="btn sm">Play</span>}</div>
           </>
         );

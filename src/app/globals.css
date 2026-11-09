@@ -173,11 +173,11 @@ a.promo:hover { filter: brightness(1.12); transform: translateY(-2px); }
 .games { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
 .game { border: 2px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--panel); position: relative; display: block; transition: transform .15s, border-color .15s, box-shadow .15s; }
 .game.live:hover { transform: translateY(-4px); border-color: var(--cyan); box-shadow: 0 0 26px rgba(23,232,232,.3); }
-.game .thumb { height: 110px; display: grid; place-items: center; font-size: 34px; color: #fff; text-shadow: 0 4px 0 rgba(0,0,0,.3); }
+.game .thumb { height: 130px; display: grid; place-items: center; font-size: 34px; color: #fff; text-shadow: 0 4px 0 rgba(0,0,0,.3); }
 .game .body { padding: 14px; display: grid; gap: 8px; }
 .game .name { font-size: 18px; } .game .meta { color: var(--muted); font-size: 14px; min-height: 40px; }
 .game.locked { opacity: .55; filter: grayscale(.6); }
-.tag { position: absolute; top: 10px; right: 10px; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #0c0c2c; border: 1px solid var(--line); z-index: 1; }
+.tag { position: absolute; top: 10px; left: 10px; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #0c0c2c; border: 1px solid var(--line); z-index: 1; }
 .tag.live { background: var(--green); color: #052; border-color: var(--green); }
 
 
@@ -209,3 +209,6 @@ a.promo:hover { filter: brightness(1.12); transform: translateY(-2px); }
 .tube.sel { border-color: var(--cyan); box-shadow: 0 0 18px rgba(23,232,232,.35); }
 .tube i { width: 34px; height: 34px; border-radius: 50%; display: block; box-shadow: inset -4px -5px 0 rgba(0,0,0,.22), inset 3px 3px 0 rgba(255,255,255,.25); transition: transform .12s; }
 .tube i.lift { transform: translateY(-22px); }
+
+.glogo { height: 100%; width: auto; max-width: 100%; display: block; filter: drop-shadow(0 4px 0 rgba(0,0,0,.25)); }
+.game.live:hover .glogo { transform: scale(1.06); } .glogo { transition: transform .15s; }
