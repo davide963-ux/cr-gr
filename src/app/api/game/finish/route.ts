@@ -11,7 +11,7 @@ export async function POST(req: Request) {
                          from game_sessions where id = ${body.id} and player_id = ${playerId} and finished_at is null`;
   if (!rows.length || !isGameId(rows[0].game)) return Response.json({ error: "unknown or already finished" }, { status: 404 });
 
-  const v = GAMES[rows[0].game as keyof typeof GAMES].finish(rows[0].seed, body, Number(rows[0].elapsed));
+  const v = GAMES[rows[0].game].finish(rows[0].seed, body, Number(rows[0].elapsed));
   const { score, won, points } = v.ok ? v : { score: 0, won: false, points: 0 };
   // `finished_at is null` guard => a session can be scored exactly once
   const upd = await sql`update game_sessions set finished_at = now(), score = ${score}, won = ${won}, points = ${points}

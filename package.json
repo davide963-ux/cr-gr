@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/lib/*.test.ts",
+    "test": "node --import tsx --test src/lib/lib.test.ts",
     "winners": "tsx --env-file=.env.local scripts/winners.ts"
   },
   "dependencies": {

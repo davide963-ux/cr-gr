@@ -21,8 +21,8 @@ export default async function Home() {
       <section className="promos">
         <Link href="/#prizes" className="promo p1"><span className="px">TOP 10<br />GET PAID</span><small>$HASHRUSH every Monday</small></Link>
         <div className="promo p2"><span className="px">NEXT PAYOUT</span><Countdown to={nextWeekStart().toISOString()} compact /></div>
-        <Link href="/play" className="promo p3"><span className="px">2 GAMES LIVE</span><small>Hash Rush · Chain Memory</small></Link>
-        <div className="promo p4"><span className="px">NEW GAMES</span><small>Block Stack · Nonce Hunter — soon</small></div>
+        <Link href="/play" className="promo p3"><span className="px">GAMES</span><small>First games coming soon</small></Link>
+        <div className="promo p4"><span className="px">GET READY</span><small>Log in with your X username now</small></div>
       </section>
 
       <section className="cols">
@@ -32,8 +32,8 @@ export default async function Home() {
           <div className="roomwrap"><Room /></div>
           <div className="roombar">
             <span className="rl">Games:</span>
-            <Link href="/play/hashrush" className="rb on" title="Hash Rush">1</Link><Link href="/play/chain" className="rb on" title="Chain Memory">2</Link><span className="rb lock">3</span><span className="rb lock">4</span>
-            <Link href="/play" className="btn sm neon" style={{ marginLeft: "auto" }}>▶ Play games</Link>
+            <span className="rb lock">1</span><span className="rb lock">2</span><span className="rb lock">3</span><span className="rb lock">4</span>
+            <Link href="/play" className="btn sm neon" style={{ marginLeft: "auto" }}>▶ Games</Link>
           </div>
           <p className="hint">Welcome to HashRush! Log in with your X username, win games to earn points, and climb the weekly leaderboard. The top 10 are paid in $HASHRUSH every Monday.</p>
         </div>
@@ -62,8 +62,7 @@ export default async function Home() {
             <h2 className="px">HOW IT WORKS</h2>
             <ol className="rules">
               <li>Log in with your X username.</li>
-              <li>Play Hash Rush or Chain Memory.</li>
-              <li>Win a game (Hash Rush score 100+, Chain Memory level 7+) and your score is added as points.</li>
+              <li>Play the games and win to earn points.</li>
               <li>The week runs Monday–Sunday (UTC). Top 10 get paid on Monday.</li>
             </ol>
           </div>

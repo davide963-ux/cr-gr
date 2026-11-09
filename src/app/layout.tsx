@@ -17,7 +17,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <div className="main">{children}</div>
         <footer className="foot">
           <div className="foot-in">
-            <div><h4 className="px">PLAY</h4><a href="/play/hashrush">Hash Rush</a><a href="/play/chain">Chain Memory</a><a href="/leaderboard">Leaderboard</a></div>
+            <div><h4 className="px">PLAY</h4><a href="/play">Games</a><a href="/leaderboard">Leaderboard</a></div>
             <div><h4 className="px">INFORMATION</h4><a href="/#how">How it works</a><a href="/#prizes">Rewards</a></div>
             <div><h4 className="px">PAYOUTS</h4><span>Every Monday 00:00 UTC the top 10 of the week are contacted on X and paid in $HASHRUSH.</span></div>
           </div>

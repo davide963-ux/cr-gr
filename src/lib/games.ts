@@ -1,29 +1,18 @@
-import { buildRounds, scoreSession, type Verdict } from "./game";
-import { buildSequence, scoreChain } from "./chain";
+/** Result of server-side scoring of one game session. */
+export type Verdict = { ok: true; score: number; won: boolean; points: number } | { ok: false; reason: string };
 
-export type GameId = "hashrush" | "chain";
-
-/** Each game: what the client receives at start, and how the server scores the submission. */
-export const GAMES: Record<GameId, {
+export type GameDef = {
+  /** Data sent to the browser when a session starts (never include the answers). */
   start: (seed: string) => Record<string, unknown>;
+  /** Re-checks the player's submission against the secret seed and the elapsed wall-clock time. */
   finish: (seed: string, body: any, elapsedMs: number) => Verdict;
-}> = {
-  hashrush: {
-    start: (seed) => ({ rounds: buildRounds(seed).rounds }), // answers never leave the server
-    finish: (seed, body, ms) => scoreSession(seed, body?.clicks, ms),
-  },
-  chain: {
-    start: (seed) => ({ sequence: buildSequence(seed) }),
-    finish: (seed, body, ms) => scoreChain(seed, body?.presses, ms),
-  },
 };
 
-export const isGameId = (g: unknown): g is GameId => typeof g === "string" && g in GAMES;
+/** Game registry. Empty for now: add a game here + a page under src/app/play/<id>/. */
+export const GAMES: Record<string, GameDef> = {};
 
-/** Public catalogue used by the UI (hub, home, sidebar). */
-export const CATALOG = [
-  { id: "hashrush", name: "HASH RUSH", href: "/play/hashrush", live: true, icon: "#A3F", desc: "Find the matching hash in 30s. Score 100+ to win.", bg: "linear-gradient(135deg,#ff9a1f,#8a5cff)" },
-  { id: "chain", name: "CHAIN MEMORY", href: "/play/chain", live: true, icon: "▣▣", desc: "Repeat the glowing block sequence. Reach level 7 to win.", bg: "linear-gradient(135deg,#17e8e8,#8a5cff)" },
-  { id: "stack", name: "BLOCK STACK", href: "", live: false, icon: "▦", desc: "Coming soon", bg: "linear-gradient(135deg,#0f4d6b,#1a1a4d)" },
-  { id: "nonce", name: "NONCE HUNTER", href: "", live: false, icon: "⛏", desc: "Coming soon", bg: "linear-gradient(135deg,#3b2a7a,#1a1a4d)" },
-] as const;
+export const isGameId = (g: unknown): g is string => typeof g === "string" && Object.hasOwn(GAMES, g);
+
+/** Public catalogue used by the UI (hub, home). */
+export type CatalogEntry = { id: string; name: string; href: string; live: boolean; icon: string; desc: string; bg: string };
+export const CATALOG: CatalogEntry[] = [];
