@@ -46,3 +46,32 @@ test("X handle parsing", () => {
   assert.equal(parseXHandle("waytoolongusername123"), null);
   assert.equal(parseXHandle(""), null);
 });
+
+import { buildSequence, scoreChain, minPlaybackMs, WIN_LEVELS } from "./chain";
+
+/** flat presses for `levels` perfect levels */
+const perfect = (seed: string, levels: number) => { const s = buildSequence(seed); const out: number[] = []; for (let L = 1; L <= levels; L++) out.push(...s.slice(0, L)); return out; };
+
+test("chain: sequence deterministic, perfect play wins", () => {
+  assert.deepEqual(buildSequence("q"), buildSequence("q"));
+  const v = scoreChain("q", perfect("q", 8), minPlaybackMs(8) + 5000);
+  assert.ok(v.ok && v.won && v.score === 120 && v.points === 120);
+});
+
+test("chain: fewer than win levels scores 0 points; mistake ends the game", () => {
+  const s = buildSequence("q");
+  const six = scoreChain("q", perfect("q", 6), minPlaybackMs(6) + 3000);
+  assert.ok(six.ok && !six.won && six.points === 0 && six.score === 90);
+  const wrong = [...perfect("q", 3), (s[0] + 1) % 4]; // level 4 first press wrong
+  const w = scoreChain("q", wrong, minPlaybackMs(4) + 3000);
+  assert.ok(w.ok && w.score === 45 && !w.won);
+  assert.equal(scoreChain("q", [...wrong, 0], minPlaybackMs(4) + 3000).ok, false); // press after mistake
+});
+
+test("chain: anti-cheat wall clock and malformed input", () => {
+  assert.equal(scoreChain("q", perfect("q", WIN_LEVELS), 5000).ok, false);            // too fast
+  assert.equal(scoreChain("q", [9], 10_000).ok, false);                                // bad pad
+  assert.equal(scoreChain("q", "x", 10_000).ok, false);
+  assert.equal(scoreChain("q", perfect("q", 3), 16 * 60_000).ok, false);               // expired
+  assert.ok(scoreChain("q", [], 0).ok);                                                // quitting at once is fine
+});

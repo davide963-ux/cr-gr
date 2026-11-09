@@ -4,10 +4,10 @@ import { useMe } from "./useMe";
 
 export default function SidePanel() {
   const me = useMe();
-  const used = me?.gamesToday ?? 0, limit = me?.dailyLimit ?? 50;
+  const used = me?.gamesToday ?? 0;
   return (
     <div className="stack">
-      <Link href="/play" className="banner b1 px">HASH RUSH<small>LIVE NOW</small></Link>
+      <Link href="/play" className="banner b1 px">GAMES<small>2 GAMES LIVE</small></Link>
       <Link href="/leaderboard" className="banner b2 px">LEADERBOARD<small>TOP 10 GET PAID</small></Link>
       <div className="panel quests">
         <div className="tabs"><span className="on">Today</span><span>This week</span></div>
@@ -15,7 +15,7 @@ export default function SidePanel() {
           <>
             <div className="quest">
               <div className="qic">🎮</div>
-              <div className="qtx"><b>Play Hash Rush</b><div className="qbar"><i style={{ width: `${Math.min(100, (used / limit) * 100)}%` }} /></div><small>{used} / {limit} games today</small></div>
+              <div className="qtx"><b>Play games</b><div className="qbar"><i style={{ width: `${Math.min(100, used * 4)}%` }} /></div><small>{used} games played today</small></div>
               <Link href="/play" className="btn sm">Start</Link>
             </div>
             <div className="quest">

@@ -16,7 +16,7 @@ export default function Sidebar() {
   return (
     <aside className="side">
       {ITEMS.map((it) => (
-        <Link key={it.label} href={it.href} className={`sbtn ${path === it.href ? "on" : ""}`} title={it.label} aria-label={it.label}>
+        <Link key={it.label} href={it.href} className={`sbtn ${(it.href === "/" ? path === "/" : it.href.startsWith("/#") ? false : path.startsWith(it.href)) ? "on" : ""}`} title={it.label} aria-label={it.label}>
           <Icon name={it.icon} /><span>{it.label}</span>
         </Link>
       ))}

@@ -25,23 +25,25 @@ flowchart TD
 ```
 Trade-off: the handle is not verified, so anyone can log in as any handle. Points can only be added, so the worst case is someone grinding points on another person's handle. Confirm in the DM that the winner really owns the account before paying.
 
-## One game (server-authoritative anti-cheat)
+## Games
+Both games share one flow: `POST /api/game/start {game}` -> play -> `POST /api/game/finish`. Each game has its own verifier in `src/lib/games.ts`; the server stores a secret seed per session and scores it exactly once. A "won" game adds its score to the weekly leaderboard.
+
+| Game | Rules | Win | Server checks |
+|---|---|---|---|
+| Hash Rush (`/play/hashrush`) | 30s, click the hash starting with the target: +10 / -5 | score >= 100 | replays clicks vs secret answers, ~30s elapsed, >= 250ms between clicks |
+| Chain Memory (`/play/chain`) | watch a block sequence, repeat it, +1 block per level, one mistake ends it; +15 per level, max 20 | 7+ levels (105 pts) | replays presses vs secret sequence; wall-clock must cover the playback time of every level reached |
+
 ```mermaid
 flowchart TD
-  S[POST /game/start] --> L{<50 games today?}
-  L -- no --> X[429]
-  L -- yes --> SEED[random seed stored in DB, rounds = HMAC seed]
-  SEED --> R[send rounds WITHOUT answers]
-  R --> PLAY[30s play, client records clicks + timestamps]
-  PLAY --> F[POST /game/finish clicks]
-  F --> CHK{server replay: elapsed ≈ 30s, ≥250ms between clicks, in order?}
-  CHK -- no --> ZERO[score 0, session burned]
-  CHK -- yes --> SC[score = +10 correct / −5 wrong]
-  SC --> W{score ≥ 100?}
+  S[start: server picks seed, returns the round data only] --> P[player plays in the browser]
+  P --> F[finish: client sends its clicks/presses]
+  F --> V[server replays them against the seed and checks the clock]
+  V -- invalid --> Z[score 0, session burned]
+  V -- valid --> W{won?}
   W -- yes --> PTS[points = score added to this week]
-  W -- no --> NONE[0 points]
+  W -- no --> N[0 points]
 ```
-`finished_at is null` in the UPDATE guarantees a session is scored once.
+Adding a game = add a verifier + catalogue entry in `src/lib/games.ts` and a page under `src/app/play/`. Daily cap: 50 sessions per game per player.
 
 ## Monday routine (manual)
 ```mermaid
