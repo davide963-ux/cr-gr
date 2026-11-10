@@ -81,7 +81,7 @@ a.promo:hover { filter: brightness(1.12); transform: translateY(-2px); }
 .power { display: flex; align-items: center; gap: 14px; background: linear-gradient(90deg, #1f2c5c, #1a2150); border: 1px solid #3a55a8; border-radius: 12px 12px 0 0; padding: 12px 16px; }
 .pbadge { width: 50px; height: 50px; border-radius: 12px; background: linear-gradient(135deg, var(--orange), var(--purple)); display: grid; place-items: center; font-size: 15px; flex: none; }
 .pinfo { flex: 1; font-size: 14px; } .pinfo b.px { display: block; color: var(--cyan); font-size: 16px; margin-bottom: 3px; } .pinfo b { color: #fff; }
-.roomwrap { background: #0d0d22; border-left: 1px solid var(--line); border-right: 1px solid var(--line); line-height: 0; }
+.roomwrap { background: #0d0d22; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px; overflow: hidden; line-height: 0; }
 .roombar { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 0 0 12px 12px; padding: 12px 16px; }
 .rl { color: var(--muted); margin-right: 6px; font-size: 18px; }
 .rb { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; background: #2a2d63; font-family: "Jersey 20", monospace; font-weight: 700; color: #cfd0ff; }
@@ -239,3 +239,57 @@ a.promo:hover { filter: brightness(1.12); transform: translateY(-2px); }
 .result .big { font-size: 44px; } .tag { font-size: 15px; } .pbadge { font-size: 18px; }
 .foot h4 { font-size: 22px; } .more { font-size: 17px; } .prof b { font-size: 19px; } .pill { font-size: 20px; }
 .mc { font-size: 19px; } .lvls .btn { font-size: 22px; }
+
+/* ---- game screen: wide glowing cabinet ---- */
+.stage { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.gframe { --gc: var(--cyan); border: 3px solid var(--gc); border-radius: 20px; overflow: hidden; background: #14163a;
+  box-shadow: 0 0 0 4px rgba(0,0,0,.35), 0 0 46px color-mix(in srgb, var(--gc) 40%, transparent), inset 0 0 60px color-mix(in srgb, var(--gc) 10%, transparent); }
+.ghead { display: flex; align-items: center; gap: 16px; padding: 12px 18px; border-bottom: 3px solid var(--gc);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--gc) 55%, #12122a), color-mix(in srgb, var(--gc) 12%, #12122a)); }
+.ghead .glogo { height: 52px; width: auto; border-radius: 8px; background: rgba(12,12,44,.55); border: 2px solid rgba(255,255,255,.25); flex: none; }
+.ghead h1 { margin: 0; flex: 1; font-size: 44px; line-height: 1; color: #fff; text-shadow: 0 3px 0 rgba(0,0,0,.4), 0 0 22px color-mix(in srgb, var(--gc) 80%, #fff); }
+.gbody { padding: 24px; min-height: 440px; display: flex; flex-direction: column; justify-content: center;
+  background:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 32px 32px,
+    radial-gradient(900px 420px at 50% 0%, color-mix(in srgb, var(--gc) 26%, transparent), transparent 70%); }
+.glogin { max-width: 520px; margin: 0 auto; width: 100%; }
+.gframe .hud { max-width: 900px; width: 100%; margin: 0 auto 16px; }
+.gframe .hud .stat, .gframe .tside .stat { background: rgba(8,8,30,.75); border: 2px solid color-mix(in srgb, var(--gc) 45%, #2f3472); border-radius: 12px; }
+.gframe .hud .stat b, .gframe .tside .stat b { font-size: 36px; }
+.gframe .board { border: 3px solid var(--gc); border-radius: 12px; box-shadow: 0 0 30px color-mix(in srgb, var(--gc) 45%, transparent); }
+.boardwrap { position: relative; margin: 0 auto; }
+.tetris { gap: 18px; align-items: stretch; } .tetris .boardwrap { margin: 0; }
+.tside { width: 132px; align-content: start; }
+.overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(8,8,30,.82); border-radius: 12px; backdrop-filter: blur(2px); animation: pop-in .25s ease-out; }
+.overlay .result { padding: 10px; } .overlay .result p { margin: 6px 0 16px; }
+.result .big { font-size: 54px; line-height: 1; margin: 0 0 6px; }
+.rscore { font-size: 76px; line-height: 1; color: var(--gold); text-shadow: 0 4px 0 rgba(0,0,0,.4), 0 0 26px rgba(255,210,74,.55); }
+.win { animation: winpulse 1s ease-in-out infinite; }
+.btn.big { font-size: 26px; padding: 14px 34px; }
+.startcard { text-align: center; display: grid; justify-items: center; gap: 14px; }
+.startart { width: min(420px, 100%); border-radius: 16px; overflow: hidden; border: 3px solid var(--gc); background: rgba(12,12,44,.6); box-shadow: 0 0 34px color-mix(in srgb, var(--gc) 45%, transparent); animation: float 3s ease-in-out infinite; }
+.startart .glogo { width: 100%; height: auto; filter: none; }
+.startcard p { font-size: 19px; color: #e6e7ff; margin: 0; max-width: 560px; }
+.grules .rules { columns: 2; column-gap: 36px; display: block; } .grules .rules li { margin-bottom: 8px; break-inside: avoid; }
+.gframe .tubes { gap: 20px; padding: 34px 0 12px; } .gframe .tube { width: 64px; border-width: 4px; border-radius: 0 0 32px 32px; } .gframe .tube i { width: 46px; height: 46px; } .gframe .tube i.lift { transform: translateY(-28px); }
+.gframe .mc { font-size: 24px; border-radius: 7px; } .gframe .mgrid { gap: 4px; width: 100%; }
+.gframe .msg:empty { display: none; }
+.gframe .tbtn { font-size: 26px; padding: 16px 0; border-color: color-mix(in srgb, var(--gc) 50%, #2f3472); }
+@keyframes pop-in { from { opacity: 0; transform: scale(.94) } to { opacity: 1; transform: none } }
+@keyframes winpulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.06) } }
+@keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
+@media (max-width: 900px) {
+  .ghead h1 { font-size: 28px; } .ghead .glogo { height: 38px; } .ghead .btn { padding: 6px 8px; font-size: 14px; }
+  .gbody { padding: 14px 10px; min-height: 0; } .grules .rules { columns: 1; }
+  .gframe .hud .stat b, .gframe .tside .stat b { font-size: 26px; } .tside { width: 104px; }
+  .rscore { font-size: 54px; } .result .big { font-size: 36px; } .btn.big { font-size: 20px; padding: 12px 22px; }
+  .gframe .tube { width: 48px; } .gframe .tube i { width: 34px; height: 34px; } .gframe .mc { font-size: 17px; }
+}
+@media (prefers-reduced-motion: reduce) { .win, .startart, .overlay { animation: none; } }
+@media (max-width: 900px) {
+  .gframe .hud { flex-wrap: nowrap; gap: 6px; margin-bottom: 10px; }
+  .gframe .hud .stat { padding: 5px 7px; min-width: 0; } .gframe .hud .stat span { font-size: 10px; white-space: nowrap; overflow: hidden; }
+  .gframe .hud .stat b { font-size: 19px; white-space: nowrap; } .gframe .hud .btn { padding: 6px 8px; font-size: 13px; }
+  .ghead { padding: 8px 10px; gap: 10px; } .btn.fire { margin-top: 8px; }
+}

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Shell, ResultCard, post, toResult, refreshMe, useTicker, ctx2d, type Result } from "@/components/GameShell";
+import { Shell, StartCard, Overlay, post, toResult, refreshMe, useTicker, ctx2d, type Result } from "@/components/GameShell";
 import { BrickGame, W, H, PY, PH, R, KINDS } from "@/lib/games/brick";
 
 const ROWC = ["#ff5470", "#ff9a1f", "#ffd24a", "#3ddc84", "#17e8e8", "#8a5cff"];
@@ -13,6 +13,7 @@ function Game() {
   const [msg, setMsg] = useState(""); const [busy, setBusy] = useState(false);
   const cv = useRef<HTMLCanvasElement>(null);
   const run = useRef<{ id: string; g: BrickGame; log: number[]; fires: number[]; fire: boolean; target: number; last: number; keys: Record<string, boolean> } | null>(null);
+  const lastG = useRef<BrickGame | null>(null); // keeps the final board on screen after the game ends
 
   async function start() {
     setBusy(true); setMsg(""); setResult(null);
@@ -20,6 +21,7 @@ function Game() {
     setBusy(false);
     if (!r.ok) return setMsg(r.d.error ?? "Could not start");
     run.current = { id: r.d.id, g: new BrickGame(r.d.seed), log: [], fires: [], fire: false, target: W / 2, last: W / 2, keys: {} };
+    lastG.current = run.current.g;
     setPhase("play");
   }
   async function finish() {
@@ -44,7 +46,7 @@ function Game() {
     return () => { window.removeEventListener("keydown", kd); window.removeEventListener("keyup", ku); };
   }, [phase]);
 
-  useTicker(phase === "play", () => {
+  useTicker(phase !== "idle", () => {
     const r = run.current; if (!r || r.g.over) return;
     if (r.keys.ArrowLeft) r.target -= 7; if (r.keys.ArrowRight) r.target += 7;
     r.target = Math.max(0, Math.min(W, r.target));
@@ -55,7 +57,7 @@ function Game() {
     r.g.step(x, fire);
     if (r.g.over) finish();
   }, () => {
-    const g = run.current?.g, c = ctx2d(cv.current, W, H); if (!g || !c) return;
+    const g = lastG.current, c = ctx2d(cv.current, W, H); if (!g || !c) return;
     c.fillStyle = "#0c0c2c"; c.fillRect(0, 0, W, H);
     for (const b of g.bricks) {
       if (b.boss) {
@@ -84,7 +86,7 @@ function Game() {
 
   return (
     <>
-      {phase === "idle" && <div className="result"><p>Break the bricks, shoot your bullets, beat the bosses. No timer, endless levels.</p><button className="btn" onClick={start} disabled={busy}>▶ Start</button></div>}
+      {phase === "idle" && <StartCard id="bricks" name="Brick Chaos" text="Break the bricks, shoot your bullets, beat the bosses. No timer, endless levels." onStart={start} busy={busy} />}
       {phase !== "idle" && (
         <>
           <div className="hud">
@@ -93,11 +95,13 @@ function Game() {
             <div className="stat"><span>Level {hud.level + 1}</span><b>{KINDS[hud.level % 5]}</b></div>
             <div className="stat"><span>Bullets</span><b>{hud.ammo} × 3</b></div>
           </div>
-          <canvas ref={cv} className="board wide" style={{ aspectRatio: `${W} / ${H}`, width: `min(100%, 480px, calc((100vh - 350px) * ${W / H}))` }} onPointerMove={aim} onPointerDown={(e) => { aim(e); if (e.pointerType === "mouse") shoot(); }} />
+          <div className="boardwrap" style={{ width: `min(100%, 660px, calc((100vh - 410px) * ${W / H}))`, minWidth: 240 }}>
+            <canvas ref={cv} className="board wide" style={{ width: "100%", aspectRatio: `${W} / ${H}` }} onPointerMove={aim} onPointerDown={(e) => { aim(e); if (e.pointerType === "mouse") shoot(); }} />
+            {phase === "over" && <Overlay result={result} hint="you need 60 to win points" onAgain={start} busy={busy} />}
+          </div>
           {phase === "play" && <button className="btn fire" onPointerDown={(e) => { e.preventDefault(); shoot(); }} disabled={hud.ammo === 0}>🔫 Fire ({hud.ammo})</button>}
         </>
       )}
-      {phase === "over" && (result ? <ResultCard result={result} hint="you need 60 to win points" onAgain={start} busy={busy} /> : <div className="empty">Checking your score…</div>)}
       <div className="msg">{msg}</div>
     </>
   );
@@ -105,7 +109,7 @@ function Game() {
 
 export default function Page() {
   return (
-    <Shell title="BRICK CHAOS" rules={<>
+    <Shell id="bricks" title="BRICK CHAOS" rules={<>
       <li>Move the paddle with your <b>mouse / finger</b> or <b>← →</b>.</li>
       <li><b>Bullets:</b> click, press <b>Space</b> or tap <b>Fire</b> to shoot 3 bullets at once. You get <b>10 volleys</b>; a red <b style={{ color: "var(--red)" }}>B</b> drop refills them.</li>
       <li>No timer and endless levels: wall, movers, checker, pyramid, then a <b>boss</b> that shoots back. Each round is faster and tougher.</li>

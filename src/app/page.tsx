@@ -30,11 +30,6 @@ export default async function Home() {
         <div>
           <ScoreBar />
           <div className="roomwrap"><Arcade /></div>
-          <div className="roombar">
-            <span className="rl">Games:</span>
-            <Link href="/play/blocks" className="rb on" title="Block Stack">1</Link><Link href="/play/bricks" className="rb on" title="Brick Chaos">2</Link><Link href="/play/mines" className="rb on" title="Minefield">3</Link><Link href="/play/sort" className="rb on" title="Color Sort">4</Link>
-            <Link href="/play" className="btn sm neon" style={{ marginLeft: "auto" }}>▶ Games</Link>
-          </div>
           <p className="hint">Welcome to HashRush! Log in with your X username, win games to earn points, and climb the weekly leaderboard. The top 10 are paid in $HASHRUSH every Monday.</p>
         </div>
       </section>

@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import { Shell, ResultCard, post, toResult, refreshMe, type Result } from "@/components/GameShell";
+import { Shell, StartCard, ResultCard, post, toResult, refreshMe, type Result } from "@/components/GameShell";
 import { SortGame, SORT_LEVELS, CAP, canMove } from "@/lib/games/sort";
 
 const BALL = ["#ff5470", "#4a7dff", "#ffd24a", "#3ddc84", "#8a5cff", "#ff9a1f", "#17e8e8"];
@@ -39,7 +39,7 @@ function Game() {
   const g = run.current?.g;
   return (
     <>
-      {phase === "idle" && <div className="result"><p>Sort the balls so every tube holds one colour.</p><button className="btn" onClick={start} disabled={busy}>▶ Start</button></div>}
+      {phase === "idle" && <StartCard id="sort" name="Color Sort" text="Sort the balls so every tube holds one colour." onStart={start} busy={busy} />}
       {g && phase !== "idle" && (
         <>
           <div className="hud">
@@ -50,7 +50,7 @@ function Game() {
           </div>
           <div className="tubes">
             {g.tubes.map((t, i) => (
-              <button key={i} data-tube={i} className={`tube ${sel === i ? "sel" : ""}`} onClick={() => tap(i)} style={{ height: CAP * 38 + 14 }}>
+              <button key={i} data-tube={i} className={`tube ${sel === i ? "sel" : ""}`} onClick={() => tap(i)} style={{ height: CAP * 50 + 16 }}>
                 {t.map((c, k) => <i key={k} className={sel === i && k === t.length - 1 ? "lift" : ""} style={{ background: BALL[c] }} />)}
               </button>
             ))}
@@ -65,7 +65,7 @@ function Game() {
 
 export default function Page() {
   return (
-    <Shell title="COLOR SORT" rules={<>
+    <Shell id="sort" title="COLOR SORT" rules={<>
       <li>Tap a tube to pick its top ball, then tap where it goes.</li>
       <li>A ball can only land on the <b>same colour</b> or in an <b>empty tube</b>.</li>
       <li>5 levels: each adds a colour and gives you fewer spare moves.</li>

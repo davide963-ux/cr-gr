@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import LoginBox from "./LoginBox";
+import GameLogo from "./GameLogo";
 import { useMe } from "./useMe";
 
 export type Result = { ok: boolean; won?: boolean; score?: number; points?: number; error?: string };
@@ -15,19 +16,35 @@ export async function post(path: string, body: unknown): Promise<{ ok: boolean; 
 }
 export const toResult = (r: { ok: boolean; d: any }): Result => (r.ok ? { ok: true, ...r.d } : { ok: false, error: r.d?.error ?? "Rejected" });
 
-/** Page frame shared by all games: login gate on the left, rules on the right. */
-export function Shell({ title, rules, children }: { title: string; rules: React.ReactNode; children: (handle: string) => React.ReactNode }) {
+const COLOR: Record<string, string> = { blocks: "#8a5cff", bricks: "#ff5470", mines: "#3ddc84", sort: "#ffd24a" };
+
+/** Page frame shared by all games: a wide glowing "cabinet" in the game's colour, rules underneath. */
+export function Shell({ id, title, rules, children }: { id: string; title: string; rules: React.ReactNode; children: (handle: string) => React.ReactNode }) {
   const me = useMe();
   return (
     <div className="stage">
-      <div className="panel">
-        <h2 className="px">{title}</h2>
-        {me === undefined ? <div className="empty">Loading…</div> : me.x_username ? children(me.x_username) : <LoginBox />}
+      <div className="gframe" style={{ "--gc": COLOR[id] ?? "#17e8e8" } as React.CSSProperties}>
+        <div className="ghead">
+          <GameLogo id={id} name={title} />
+          <h1 className="px">{title}</h1>
+          <Link href="/play" className="btn sm ghost">← All games</Link>
+        </div>
+        <div className="gbody">
+          {me === undefined ? <div className="empty">Loading…</div> : me.x_username ? children(me.x_username) : <div className="glogin"><LoginBox /></div>}
+        </div>
       </div>
-      <div className="grid">
-        <div className="panel"><h2 className="px">HOW IT WORKS</h2><ul className="rules">{rules}</ul></div>
-        <Link href="/play" className="btn ghost">← All games</Link>
-      </div>
+      <div className="panel grules"><h2 className="px">HOW IT WORKS</h2><ul className="rules">{rules}</ul></div>
+    </div>
+  );
+}
+
+/** Start screen: big game art, one line of pitch, one big button. */
+export function StartCard({ id, name, text, onStart, busy, children }: { id: string; name: string; text: string; onStart?: () => void; busy?: boolean; children?: React.ReactNode }) {
+  return (
+    <div className="startcard">
+      <div className="startart"><GameLogo id={id} name={name} /></div>
+      <p>{text}</p>
+      {children ?? <button className="btn big" onClick={onStart} disabled={busy}>▶ Start game</button>}
     </div>
   );
 }
@@ -38,13 +55,18 @@ export function ResultCard({ result, hint, onAgain, busy }: { result: Result; hi
       {result.ok ? (
         <>
           <div className={`big px ${result.won ? "win" : "lose"}`}>{result.won ? "YOU WON!" : "GAME OVER"}</div>
-          <p>Score <b style={{ color: "var(--gold)" }}>{result.score}</b>
-            {result.won ? <> · <b style={{ color: "var(--green)" }}>+{result.points} points</b> added to the leaderboard</> : <> · {hint}</>}</p>
+          <div className="rscore px">{result.score}</div>
+          <p>{result.won ? <><b style={{ color: "var(--green)" }}>+{result.points} points</b> added to the leaderboard</> : hint}</p>
         </>
-      ) : <div className="big px lose" style={{ fontSize: 18 }}>{result.error}</div>}
-      <button className="btn" onClick={onAgain} disabled={busy}>↻ Play again</button>
+      ) : <div className="big px lose" style={{ fontSize: 24 }}>{result.error}</div>}
+      <button className="btn big" onClick={onAgain} disabled={busy}>↻ Play again</button>
     </div>
   );
+}
+
+/** Result (or "checking") shown on top of the frozen board. */
+export function Overlay({ result, hint, onAgain, busy }: { result: Result | null; hint: string; onAgain: () => void; busy?: boolean }) {
+  return <div className="overlay">{result ? <ResultCard result={result} hint={hint} onAgain={onAgain} busy={busy} /> : <div className="empty">Checking your score…</div>}</div>;
 }
 
 /** Fixed-timestep loop (60 ticks/s) that survives tab switches without fast-forwarding. */

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Shell, ResultCard, post, toResult, refreshMe, useTicker, ctx2d, type Result } from "@/components/GameShell";
+import { Shell, StartCard, Overlay, post, toResult, refreshMe, useTicker, ctx2d, type Result } from "@/components/GameShell";
 import { Tetris, cellsOf, COLS, ROWS, A } from "@/lib/games/tetris";
 
 const S = 24, COLORS = ["#17e8e8", "#ffd24a", "#8a5cff", "#3ddc84", "#ff5470", "#4a7dff", "#ff9a1f"];
@@ -18,6 +18,7 @@ function Game() {
   const [msg, setMsg] = useState(""); const [busy, setBusy] = useState(false);
   const cv = useRef<HTMLCanvasElement>(null), nx = useRef<HTMLCanvasElement>(null);
   const run = useRef<{ id: string; g: Tetris; log: number[]; pending: number[]; held: Record<number, number> } | null>(null);
+  const last = useRef<Tetris | null>(null); // keeps the final board on screen after the game ends
 
   async function start() {
     setBusy(true); setMsg(""); setResult(null);
@@ -25,6 +26,7 @@ function Game() {
     setBusy(false);
     if (!r.ok) return setMsg(r.d.error ?? "Could not start");
     run.current = { id: r.d.id, g: new Tetris(r.d.seed), log: [], pending: [], held: {} };
+    last.current = run.current.g;
     setPhase("play");
   }
   async function finish() {
@@ -44,7 +46,7 @@ function Game() {
     return () => { window.removeEventListener("keydown", kd); window.removeEventListener("keyup", ku); };
   }, [phase]);
 
-  useTicker(phase === "play", () => {
+  useTicker(phase !== "idle", () => {
     const r = run.current; if (!r || r.g.over) return;
     const acts = r.pending.splice(0, 8);
     for (const a of [A.LEFT, A.RIGHT]) if (a in r.held && ++r.held[a] >= 10 && (r.held[a] - 10) % 3 === 0) acts.push(a); // auto-repeat
@@ -54,7 +56,7 @@ function Game() {
     r.g.step(acts);
     if (r.g.over) finish();
   }, () => {
-    const g = run.current?.g, c = ctx2d(cv.current, COLS * S, ROWS * S); if (!g || !c) return;
+    const g = last.current, c = ctx2d(cv.current, COLS * S, ROWS * S); if (!g || !c) return;
     c.fillStyle = "#0c0c2c"; c.fillRect(0, 0, COLS * S, ROWS * S);
     c.fillStyle = "rgba(255,255,255,.04)";
     for (let x = 1; x < COLS; x++) c.fillRect(x * S, 0, 1, ROWS * S);
@@ -75,12 +77,15 @@ function Game() {
   );
   return (
     <>
-      {phase === "idle" && <div className="result"><p>Stack the blocks and clear lines. No timer: the longer you last, the faster they fall.</p><button className="btn" onClick={start} disabled={busy}>▶ Start</button></div>}
+      {phase === "idle" && <StartCard id="blocks" name="Block Stack" text="Stack the blocks and clear lines. No timer: the longer you last, the faster they fall." onStart={start} busy={busy} />}
       {phase !== "idle" && (
         <div className="tetris">
-          <canvas ref={cv} className="board" style={{ width: `min(${COLS * S}px, calc(100% - 122px), calc((100vh - 300px) * ${COLS / ROWS}))`, minWidth: 170, aspectRatio: `${COLS} / ${ROWS}` }} />
+          <div className="boardwrap" style={{ width: `min(380px, calc(100% - 150px), calc((100vh - 250px) * ${COLS / ROWS}))`, minWidth: 170 }}>
+            <canvas ref={cv} className="board" style={{ width: "100%", aspectRatio: `${COLS} / ${ROWS}` }} />
+            {phase === "over" && <Overlay result={result} hint="you need 60 to win points" onAgain={start} busy={busy} />}
+          </div>
           <div className="tside">
-            <div className="stat"><span>Next</span><canvas ref={nx} style={{ width: 80, height: 80 }} /></div>
+            <div className="stat"><span>Next</span><canvas ref={nx} style={{ width: 96, height: 96 }} /></div>
             <div className="stat"><span>Score</span><b>{hud.score}</b></div>
             <div className="stat"><span>Lines</span><b>{hud.lines}</b></div>
             <div className="stat"><span>Speed</span><b>×{hud.speed}</b></div>
@@ -88,7 +93,6 @@ function Game() {
         </div>
       )}
       {phase === "play" && <div className="tpad">{pad("◀", A.LEFT)}{pad("⟳", A.ROTATE)}{pad("▶", A.RIGHT)}{pad("▼", A.SOFT)}{pad("⤓", A.HARD)}</div>}
-      {phase === "over" && (result ? <ResultCard result={result} hint="you need 60 to win points" onAgain={start} busy={busy} /> : <div className="empty">Checking your score…</div>)}
       <div className="msg">{msg}</div>
     </>
   );
@@ -96,7 +100,7 @@ function Game() {
 
 export default function Page() {
   return (
-    <Shell title="BLOCK STACK" rules={<>
+    <Shell id="blocks" title="BLOCK STACK" rules={<>
       <li>Move with <b>← →</b>, rotate with <b>↑</b>, soft drop <b>↓</b>, hard drop <b>Space</b> (or the on-screen buttons).</li>
       <li>Clear 1 / 2 / 3 / 4 lines at once for <b>20 / 50 / 80 / 120</b>.</li>
       <li>No timer. Blocks fall faster every <b>15 seconds</b>; play until the stack reaches the top.</li>

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Shell, ResultCard, post, refreshMe, type Result } from "@/components/GameShell";
+import { Shell, StartCard, ResultCard, post, refreshMe, type Result } from "@/components/GameShell";
 
 type Info = { id: string; rows: number; cols: number; mask: string; mines: number; limitMs: number; map: string; level: string };
 const LEVELS = [["easy", "EASY", "9×9 · 2 min · 100+ pts"], ["medium", "MEDIUM", "12×12 · 4 min · 220+ pts"], ["hard", "HARD", "16×16 · 7 min · 400+ pts"]];
@@ -52,11 +52,10 @@ function Game() {
   const flag = (e: React.MouseEvent, i: number) => { e.preventDefault(); if (!over && !(i in open)) setFlags((f) => ({ ...f, [i]: !f[i] })); };
 
   if (!info) return (
-    <div className="result">
-      <p>Pick a difficulty. Open every safe square before the clock runs out.</p>
+    <StartCard id="mines" name="Minefield" text="Pick a difficulty. Open every safe square before the clock runs out.">
       <div className="lvls">{LEVELS.map(([id, name, d]) => <button key={id} className="btn" onClick={() => start(id)} disabled={busy}>{name}<small>{d}</small></button>)}</div>
       <div className="msg">{msg}</div>
-    </div>
+    </StartCard>
   );
   const nFlags = Object.values(flags).filter(Boolean).length;
   return (
@@ -67,7 +66,7 @@ function Game() {
         <div className="stat"><span>Map</span><b style={{ textTransform: "uppercase" }}>{info.map}</b></div>
         <button className={`btn sm ${flagMode ? "" : "ghost"}`} onClick={() => setFlagMode(!flagMode)} title="Flag mode (or right-click a square)">⚑ {flagMode ? "ON" : "OFF"}</button>
       </div>
-      <div className="mgrid" style={{ gridTemplateColumns: `repeat(${info.cols}, 1fr)`, maxWidth: info.cols * 34 }} data-over={over}>
+      <div className="mgrid" style={{ gridTemplateColumns: `repeat(${info.cols}, 1fr)`, maxWidth: `min(${info.cols * 46}px, calc((100vh - 330px) * ${info.cols / info.rows}))` }} data-over={over}>
         {info.mask.split("").map((on, i) => {
           if (on === "0") return <span key={i} />;
           const isMine = mines?.includes(i), v = open[i];
@@ -87,7 +86,7 @@ function Game() {
 
 export default function Page() {
   return (
-    <Shell title="MINEFIELD" rules={<>
+    <Shell id="mines" title="MINEFIELD" rules={<>
       <li>Click a square to open it. Numbers show how many mines touch that square.</li>
       <li><b>Right-click</b> (or switch ⚑ on) to flag a mine. Your first click is always safe.</li>
       <li>Maps change every game: square, diamond, donut or cross.</li>
