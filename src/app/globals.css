@@ -293,3 +293,23 @@ a.promo:hover { filter: brightness(1.12); transform: translateY(-2px); }
   .gframe .hud .stat b { font-size: 19px; white-space: nowrap; } .gframe .hud .btn { padding: 6px 8px; font-size: 13px; }
   .ghead { padding: 8px 10px; gap: 10px; } .btn.fire { margin-top: 8px; }
 }
+
+/* ---- big play boards on desktop: the board takes the height, stats sit beside it ---- */
+.gbody { padding: 18px 20px; }
+.playrow { display: flex; gap: 18px; justify-content: center; align-items: stretch; }
+.playrow .boardwrap { margin: 0; }
+.boardwrap.land { width: min(calc(100% - 210px), calc((100vh - 225px) * var(--ar))); min-width: 280px; }
+.boardwrap.port { width: min(calc(100% - 170px), calc((100vh - 225px) * var(--ar))); min-width: 170px; }
+.pside { width: 190px; } .tside { width: 150px; }
+.pside .btn.fire { width: 100%; margin: 4px 0 0; font-size: 24px; padding: 14px 0; }
+.gframe .mc { font-size: 28px; }
+@media (max-width: 900px) {
+  .playrow { flex-direction: column-reverse; gap: 10px; align-items: center; }
+  .boardwrap.land { width: min(100%, calc((100vh - 330px) * var(--ar))); min-width: 0; }
+  .pside { width: 100%; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .pside .stat { padding: 5px 7px; min-width: 0; } .pside .stat span { font-size: 10px; white-space: nowrap; overflow: hidden; } .gframe .pside .stat b { font-size: 18px; white-space: nowrap; }
+  .pside .btn.fire { grid-column: 1 / -1; order: 9; font-size: 20px; padding: 10px 0; }
+  .boardwrap.port { width: min(calc(100% - 116px), calc((100vh - 330px) * var(--ar))); } .tside { width: 104px; }
+  .gbody { padding: 12px 10px; } .gframe .mc { font-size: 17px; }
+}
+.main:has(.stage) { max-width: 1600px; }

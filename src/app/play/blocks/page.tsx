@@ -80,12 +80,12 @@ function Game() {
       {phase === "idle" && <StartCard id="blocks" name="Block Stack" text="Stack the blocks and clear lines. No timer: the longer you last, the faster they fall." onStart={start} busy={busy} />}
       {phase !== "idle" && (
         <div className="tetris">
-          <div className="boardwrap" style={{ width: `min(380px, calc(100% - 150px), calc((100vh - 250px) * ${COLS / ROWS}))`, minWidth: 170 }}>
+          <div className="boardwrap port" style={{ "--ar": COLS / ROWS } as React.CSSProperties}>
             <canvas ref={cv} className="board" style={{ width: "100%", aspectRatio: `${COLS} / ${ROWS}` }} />
             {phase === "over" && <Overlay result={result} hint="you need 60 to win points" onAgain={start} busy={busy} />}
           </div>
           <div className="tside">
-            <div className="stat"><span>Next</span><canvas ref={nx} style={{ width: 96, height: 96 }} /></div>
+            <div className="stat"><span>Next</span><canvas ref={nx} style={{ width: 110, height: 110 }} /></div>
             <div className="stat"><span>Score</span><b>{hud.score}</b></div>
             <div className="stat"><span>Lines</span><b>{hud.lines}</b></div>
             <div className="stat"><span>Speed</span><b>×{hud.speed}</b></div>

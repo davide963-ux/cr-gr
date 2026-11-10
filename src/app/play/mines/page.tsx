@@ -66,7 +66,7 @@ function Game() {
         <div className="stat"><span>Map</span><b style={{ textTransform: "uppercase" }}>{info.map}</b></div>
         <button className={`btn sm ${flagMode ? "" : "ghost"}`} onClick={() => setFlagMode(!flagMode)} title="Flag mode (or right-click a square)">⚑ {flagMode ? "ON" : "OFF"}</button>
       </div>
-      <div className="mgrid" style={{ gridTemplateColumns: `repeat(${info.cols}, 1fr)`, maxWidth: `min(${info.cols * 46}px, calc((100vh - 330px) * ${info.cols / info.rows}))` }} data-over={over}>
+      <div className="mgrid" style={{ gridTemplateColumns: `repeat(${info.cols}, 1fr)`, maxWidth: `min(${info.cols * 64}px, calc((100vh - 350px) * ${info.cols / info.rows}))` }} data-over={over}>
         {info.mask.split("").map((on, i) => {
           if (on === "0") return <span key={i} />;
           const isMine = mines?.includes(i), v = open[i];

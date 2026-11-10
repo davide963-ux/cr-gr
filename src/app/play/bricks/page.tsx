@@ -89,17 +89,19 @@ function Game() {
       {phase === "idle" && <StartCard id="bricks" name="Brick Chaos" text="Break the bricks, shoot your bullets, beat the bosses. No timer, endless levels." onStart={start} busy={busy} />}
       {phase !== "idle" && (
         <>
-          <div className="hud">
-            <div className="stat"><span>Score</span><b>{hud.score}</b></div>
-            <div className="stat"><span>Lives</span><b>{"♥".repeat(Math.max(0, hud.lives))}</b></div>
-            <div className="stat"><span>Level {hud.level + 1}</span><b>{KINDS[hud.level % 5]}</b></div>
-            <div className="stat"><span>Bullets</span><b>{hud.ammo} × 3</b></div>
+          <div className="playrow">
+            <div className="boardwrap land" style={{ "--ar": W / H } as React.CSSProperties}>
+              <canvas ref={cv} className="board wide" style={{ width: "100%", aspectRatio: `${W} / ${H}` }} onPointerMove={aim} onPointerDown={(e) => { aim(e); if (e.pointerType === "mouse") shoot(); }} />
+              {phase === "over" && <Overlay result={result} hint="you need 60 to win points" onAgain={start} busy={busy} />}
+            </div>
+            <div className="tside pside">
+              <div className="stat"><span>Score</span><b>{hud.score}</b></div>
+              <div className="stat"><span>Lives</span><b>{"♥".repeat(Math.max(0, hud.lives))}</b></div>
+              <div className="stat"><span>Level {hud.level + 1}</span><b>{KINDS[hud.level % 5]}</b></div>
+              <div className="stat"><span>Bullets</span><b>{hud.ammo} × 3</b></div>
+              {phase === "play" && <button className="btn fire" onPointerDown={(e) => { e.preventDefault(); shoot(); }} disabled={hud.ammo === 0}>🔫 Fire</button>}
+            </div>
           </div>
-          <div className="boardwrap" style={{ width: `min(100%, 660px, calc((100vh - 410px) * ${W / H}))`, minWidth: 240 }}>
-            <canvas ref={cv} className="board wide" style={{ width: "100%", aspectRatio: `${W} / ${H}` }} onPointerMove={aim} onPointerDown={(e) => { aim(e); if (e.pointerType === "mouse") shoot(); }} />
-            {phase === "over" && <Overlay result={result} hint="you need 60 to win points" onAgain={start} busy={busy} />}
-          </div>
-          {phase === "play" && <button className="btn fire" onPointerDown={(e) => { e.preventDefault(); shoot(); }} disabled={hud.ammo === 0}>🔫 Fire ({hud.ammo})</button>}
         </>
       )}
       <div className="msg">{msg}</div>

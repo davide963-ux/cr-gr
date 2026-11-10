@@ -29,7 +29,7 @@ Trade-off: the handle is not verified, so anyone can log in as any handle. Point
 | Game | Route | Rules | Win (score becomes points) | How the server checks it |
 |---|---|---|---|---|
 | Block Stack (tetris-style) | `/play/blocks` | no timer, falls faster every 15s, lines score 20/50/80/120 | score >= 60 | replays the input log in the same engine |
-| Brick Chaos | `/play/bricks` | endless levels (5 patterns, boss every 5th), power-ups, 10 volleys of 3 bullets, 3 lives, no timer | score >= 60 | replays the paddle + fire log in the same physics engine |
+| Brick Chaos | `/play/bricks` | endless levels (5 patterns, boss every 5th), power-ups, 10 volleys of 3 bullets, 3 lives, no timer | score >= 60 | replays the paddle + fire log in the same physics engine (600×480 field, 15 bricks wide) |
 | Minefield | `/play/mines` | easy / medium / hard, random map shape, time limit, speed bonus | all safe squares opened | mine layout never leaves the server: one request per click |
 | Color Sort | `/play/sort` | 5 levels, more colours and fewer spare moves each | 2+ levels cleared | replays the move list; levels are solver-checked |
 

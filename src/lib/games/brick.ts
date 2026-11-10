@@ -3,8 +3,8 @@
 import { rng } from "./rng";
 import { bad, verdict, type Verdict } from "./types";
 
-export const W = 400, H = 520, TPS = 60, MAX_TICKS = 20 * 60 * TPS; // safety cap only (20 min)
-export const PY = 490, PH = 10, R = 5;
+export const W = 600, H = 480, COLS = 15, TPS = 60, MAX_TICKS = 20 * 60 * TPS; // safety cap only (20 min)
+export const PY = 450, PH = 10, R = 5;
 export const VOLLEYS = 10, FIRE_COOLDOWN = 12, WIN_SCORE = 60;
 const BW = 36, BH = 14, GAP = 4, LEFT = 2, TOP = 50;
 export const POWER = { WIDE: 0, MULTI: 1, SLOW: 2, LIFE: 3, AMMO: 4 } as const;
@@ -22,7 +22,7 @@ export class BrickGame {
   private rand: () => number;
 
   constructor(seed: string) { this.rand = rng(seed + ":bricks"); this.load(0); }
-  get pw() { return this.tick < this.wideUntil ? 100 : 64; }
+  get pw() { return this.tick < this.wideUntil ? 130 : 84; }
   get speed() { return Math.min(8.5, 6 + this.level * 0.3); }
   get boss() { return this.bricks.find((b) => b.boss && b.hp > 0); }
   get kind() { return this.level % 5; }
@@ -31,15 +31,15 @@ export class BrickGame {
     const bx = LEFT + col * (BW + GAP), y = TOP + row * (BH + GAP);
     this.bricks.push({ x: bx, bx, y, w: BW, h: BH, hp, max: hp, mv, boss: false, row });
   }
-  private line(row: number, hp: number, mv = 0) { for (let c = 0; c < (mv ? 8 : 10); c++) this.put(row, c, hp, mv); }
+  private line(row: number, hp: number, mv = 0) { for (let c = 0; c < (mv ? COLS - 2 : COLS); c++) this.put(row, c, hp, mv); }
   /** Level n: 5 patterns in rotation, tougher bricks each time round. */
   private load(level: number) {
     this.bricks = []; this.balls = []; this.drops = []; this.shots = []; this.bullets = [];
     const kind = level % 5, cycle = Math.floor(level / 5), tough = Math.min(3, 1 + cycle);
     if (kind === 0) { const rows = Math.min(5, 3 + cycle); for (let r = 0; r < rows; r++) this.line(r, r === 0 ? tough : 1); }
     else if (kind === 1) { this.line(0, tough); this.line(1, 1, 1); this.line(2, 1); this.line(3, 1, 161); }
-    else if (kind === 2) { for (let r = 0; r < 5; r++) for (let c = 0; c < 10; c++) if ((r + c) % 2 === 0) this.put(r, c, r < 2 ? tough : 1); }
-    else if (kind === 3) { for (let r = 0; r < 5; r++) for (let c = r; c < 10 - r; c++) this.put(r, c, r === 0 ? Math.min(3, tough + 1) : 1); }
+    else if (kind === 2) { for (let r = 0; r < 5; r++) for (let c = 0; c < COLS; c++) if ((r + c) % 2 === 0) this.put(r, c, r < 2 ? tough : 1); }
+    else if (kind === 3) { for (let r = 0; r < 5; r++) for (let c = r; c < COLS - r; c++) this.put(r, c, r === 0 ? Math.min(3, tough + 1) : 1); }
     else {
       const hp = 20 + cycle * 10;
       this.bricks.push({ x: 20, bx: 20, y: 36, w: 120, h: 40, hp, max: hp, mv: 1, boss: true, row: 0 });
@@ -87,7 +87,7 @@ export class BrickGame {
     const pw = this.pw, px = (this.px = Math.min(W - pw / 2, Math.max(pw / 2, input)));
     for (const b of this.bricks) {
       if (!b.mv) continue;
-      if (b.boss) { const p = this.tick % 960; b.x = b.bx + (p < 480 ? p : 960 - p) * 0.5; }
+      if (b.boss) { const range = (W - 160) * 2, p = this.tick % (range * 2); b.x = b.bx + (p < range ? p : range * 2 - p) * 0.5; }
       else { const p = (this.tick + b.mv - 1) % 320; b.x = b.bx + (p < 160 ? p : 320 - p) * 0.5; }
     }
     const boss = this.boss;
