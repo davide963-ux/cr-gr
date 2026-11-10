@@ -82,28 +82,29 @@ a.promo:hover { filter: brightness(1.12); transform: translateY(-2px); }
 .pbadge { width: 50px; height: 50px; border-radius: 12px; background: linear-gradient(135deg, var(--orange), var(--purple)); display: grid; place-items: center; font-size: 15px; flex: none; }
 .pinfo { flex: 1; font-size: 14px; } .pinfo b.px { display: block; color: var(--cyan); font-size: 16px; margin-bottom: 3px; } .pinfo b { color: #fff; }
 .roomwrap { background: #0d0d22; border-left: 1px solid var(--line); border-right: 1px solid var(--line); line-height: 0; }
-.room-svg { width: 100%; height: auto; display: block; image-rendering: pixelated; }
 .roombar { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 0 0 12px 12px; padding: 12px 16px; }
 .rl { color: var(--muted); margin-right: 6px; font-size: 18px; }
 .rb { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; background: #2a2d63; font-family: "Jersey 20", monospace; font-weight: 700; color: #cfd0ff; }
 .rb.on { background: #4a4fa0; border: 2px solid #8a90ff; } .rb.lock { opacity: .4; }
 .hint { color: var(--muted); font-size: 14px; margin: 14px 4px 0; }
 
-/* room animations */
-.room-svg .neon { animation: neon 3s ease-in-out infinite; }
-.room-svg .tw { animation: tw 3s steps(1) infinite; }
-.room-svg .sec { animation: spin 60s steps(60) infinite; }
-.room-svg .bob { animation: bob 1s steps(1) infinite; }
-.room-svg .blink { transform-box: fill-box; transform-origin: center; animation: blink 4.5s steps(1) infinite; }
-.room-svg .glow { animation: neon 1.6s ease-in-out infinite; }
-.room-svg .scroll { animation: scroll 1.5s steps(6) infinite; }
-.room-svg .cur { animation: cur 1s steps(1) infinite; }
-.room-svg .flick { animation: flick 2.3s ease-in-out infinite; }
-.room-svg .hand.a { animation: tap .28s steps(1) infinite; }
-.room-svg .hand.b { animation: tap .28s steps(1) .14s infinite; }
-.room-svg .keys { animation: cur .28s steps(1) infinite; }
-.room-svg .steam { animation: steam 2s linear infinite; } .room-svg .steam.s2 { animation-delay: 1s; }
-.room-svg .pop { opacity: 0; animation: pop 3.6s ease-out infinite; } .room-svg .p2 { animation-delay: 1.2s; } .room-svg .p3 { animation-delay: 2.4s; }
+/* arcade scene animations */
+.arcade { width: 100%; height: auto; display: block; }
+.arcade .cab { cursor: pointer; transition: transform .15s; transform-box: fill-box; }
+.arcade .cab:hover { transform: translateY(-3px); } .arcade .cab:hover .playtxt { animation-duration: .35s; }
+.arcade .bulb { animation: cur 1.05s steps(1) infinite; }
+.arcade .neonsign { animation: sign 4s steps(1) infinite; filter: drop-shadow(0 0 3px currentColor); }
+.arcade .flick { animation: flick 2.3s ease-in-out infinite; }
+.arcade .scan { animation: scanl 3s linear infinite; }
+.arcade .stick { animation: wiggle 1.2s steps(1) infinite; }
+.arcade .blinkb { animation: cur .9s steps(1) infinite; }
+.arcade .playtxt { animation: cur 1.1s steps(1) infinite; }
+.arcade .pulse { animation: neon 2.4s ease-in-out infinite; }
+.arcade .spark { animation: tw 2.6s steps(1) infinite; }
+@keyframes sign { 0%,100% { opacity: 1 } 46% { opacity: 1 } 47% { opacity: .35 } 49% { opacity: 1 } 51% { opacity: .5 } 52% { opacity: 1 } }
+@keyframes scanl { from { transform: translateY(0) } to { transform: translateY(29px) } }
+@keyframes wiggle { 0%,100% { transform: rotate(0) } 25% { transform: rotate(-14deg) } 60% { transform: rotate(12deg) } }
+@media (prefers-reduced-motion: reduce) { .arcade * { animation: none !important; } }
 @keyframes neon { 0%,100% { opacity: .55 } 50% { opacity: 1 } }
 @keyframes flick { 0%,100% { opacity: .02 } 50% { opacity: .1 } }
 @keyframes tw { 0%,100% { opacity: 1 } 50% { opacity: .1 } }
@@ -115,7 +116,6 @@ a.promo:hover { filter: brightness(1.12); transform: translateY(-2px); }
 @keyframes tap { 0%,100% { transform: translateY(0) } 50% { transform: translateY(1px) } }
 @keyframes steam { 0% { transform: translateY(3px); opacity: 0 } 30% { opacity: .8 } 100% { transform: translateY(-5px); opacity: 0 } }
 @keyframes pop { 0% { transform: translateY(6px); opacity: 0 } 15% { opacity: 1 } 70% { opacity: 1 } 100% { transform: translateY(-12px); opacity: 0 } }
-@media (prefers-reduced-motion: reduce) { .room-svg * { animation: none !important; } .room-svg .pop { opacity: 0; } }
 
 /* leaderboard */
 .lb { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }

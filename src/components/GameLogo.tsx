@@ -109,6 +109,12 @@ function Sort() {
 
 const ART: Record<string, () => React.JSX.Element> = { blocks: Blocks, bricks: Bricks, mines: Mines, sort: Sort };
 
+/** Just the drawing (160×80 units), for embedding inside another SVG. */
+export function GameArt({ id }: { id: string }) {
+  const Art = ART[id];
+  return Art ? <Art /> : null;
+}
+
 export default function GameLogo({ id, name }: { id: string; name: string }) {
   const Art = ART[id];
   if (!Art) return null;

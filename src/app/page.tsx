@@ -4,7 +4,7 @@ import { weekStart, nextWeekStart } from "@/lib/weeks";
 import { SPLIT } from "@/lib/prizes";
 import Countdown from "@/components/Countdown";
 import Board from "@/components/Board";
-import Room from "@/components/Room";
+import Arcade from "@/components/Arcade";
 import GameCards from "@/components/GameCards";
 import SidePanel from "@/components/SidePanel";
 import ScoreBar from "@/components/ScoreBar";
@@ -29,7 +29,7 @@ export default async function Home() {
         <SidePanel />
         <div>
           <ScoreBar />
-          <div className="roomwrap"><Room /></div>
+          <div className="roomwrap"><Arcade /></div>
           <div className="roombar">
             <span className="rl">Games:</span>
             <Link href="/play/blocks" className="rb on" title="Block Stack">1</Link><Link href="/play/bricks" className="rb on" title="Brick Chaos">2</Link><Link href="/play/mines" className="rb on" title="Minefield">3</Link><Link href="/play/sort" className="rb on" title="Color Sort">4</Link>
